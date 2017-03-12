@@ -11,7 +11,6 @@ use strict;
 use warnings;
 use version;   our $VERSION = qv('5.16.0');
 use Text::CSV  1.32;
-use Data::ArrayList;
 
 my $EMPTY      = q{};
 my $SPACE      = q{ };
@@ -32,7 +31,7 @@ my $coordinate;
 my $vector;
 
 if ($#ARGV != 0 ) {
-   print "Usage: sortfiles.pl <names file>\n" or
+   print "Usage: sortfiles.pl <records file>\n" or
       die "Print failure\n";
    exit;
 } else {
@@ -66,18 +65,25 @@ foreach my $record ( @records ) {
 sub makeFile{
    my $path = stringConsoleSafe($_[0]);
    my $file = stringConsoleSafe($_[1]);
-
-   system("mkdir $path; touch $path/$file");
+   #print "Path: $path";
+   #print "File: $file";
+   #system("mkdir $path; touch $path/$file");
 }
 
 #Makes a string console safe by adding "\" infront of any spaces that are present
 #TODO: populate arraylsit with every character of the string then add '\' characters infront of spaces then send all the characters back to the string.
 sub stringConsoleSafe{
-   my $string = stringConsoleSafe($_[0]);
+   print "START: $_[0]\n";
+   my $string = $_[0];
    my $i=0;
-   my $charArray = Data::ArrayList->new(my $initialSize = 5);
-
+   my $j;
    for($i = 0;$i<length $string;$i++){
+      my $z = substr $string, $i, 1;
+      if($z eq " "){
+         $z = substr $string, $i, 1, "\\ ";
+         $i++;
+      }
    }
+   print "END: $string\n";
    return $string;
 }
