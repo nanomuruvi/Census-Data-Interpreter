@@ -35,6 +35,8 @@ if ($#ARGV != 1 ) {
    $containingFolder = $ARGV[1];
 }
 
+removeFolder($containingFolder);
+
 open my $names_fh, '<', $filename
    or die "Unable to open names file: $filename\n";
 print "Input file: $filename\n";
@@ -75,7 +77,7 @@ foreach my $record ( @records ) {
       $line = "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]";
       print "Coordinate: ($coordinate)\n";
 
-      makeFile( makeStringConsoleSafe($folder), makeStringConsoleSafe($file), makeStringConsoleSafe($containingFolder));
+      makeFolders( makeStringConsoleSafe($folder), makeStringConsoleSafe($containingFolder),makeStringConsoleSafe($file));
       writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
 
       #print "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]\n";
@@ -85,14 +87,25 @@ foreach my $record ( @records ) {
    $lines++;
 }
 
-sub makeFile{
+sub makeFolders{
+   print "Making Folders\n";
    my $path = $_[0];
-   my $file = $_[1];
-   my $container = $_[2];
+   my $container = $_[1];
+   my $file = $_[2];
+   my $fileFolder = "$container/$path";
 
-   system("mkdir $container");
-   system("mkdir $container/$path");
-   system("touch Test/$path/$file");
+   my $ce = -e $container;
+   my $fe = -e $fileFolder;
+   
+   if(!$ce){
+      system("mkdir $container");
+      system("mkdir $fileFolder");
+   }else{
+      if(!$fe){
+         system("mkdir $fileFolder");
+      }
+   }
+   system("touch $fileFolder/$file");
 }
 
 sub makeStringConsoleSafe{
@@ -100,6 +113,7 @@ sub makeStringConsoleSafe{
 
    $string = replaceString($string," ","\\ ");
    $string = makeFileSystemSafe($string);
+
    return $string;
 }
 
@@ -142,3 +156,6 @@ sub replaceString{
    return $string;
 }
 
+sub removeFolder{
+   system("rm -fr $_[0]");
+}

@@ -1,4 +1,0 @@
-Input file: #02520051-eng.csv
-Coordinate: (Coordinate)
-File: STA.csv
-Coordinate: (1.1.1)
