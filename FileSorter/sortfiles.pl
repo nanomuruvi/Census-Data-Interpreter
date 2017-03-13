@@ -71,16 +71,16 @@ foreach my $record ( @records ) {
       $coordinate = $fields[5];
       $value = $fields[6];
 
-      $folder = $violation;
+      $folder = replaceString($violation,"/","or");
+      $folder = replaceString($violation,"\$","");
       $file = "$statistic.csv";
 
-      $line = "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]";
+      $line = "$year,$value,$location,$coordinate,$vector";
       print "Coordinate: ($coordinate)\n";
 
       makeFolders( makeStringConsoleSafe($folder), makeStringConsoleSafe($containingFolder),makeStringConsoleSafe($file));
       writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
 
-      #print "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]\n";
    } else {
       warn "Line/record \'$line\' could not be parsed.\n";
    }
@@ -88,7 +88,6 @@ foreach my $record ( @records ) {
 }
 
 sub makeFolders{
-   print "Making Folders\n";
    my $path = $_[0];
    my $container = $_[1];
    my $file = $_[2];
