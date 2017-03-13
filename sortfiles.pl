@@ -21,69 +21,124 @@ my $folders    = Text::CSV->new({ sep_char => $SLASH });
 my $csv        = Text::CSV->new({ sep_char => $COMMA });
 
 my $filename = $EMPTY;
+my $containingFolder = $EMPTY;
 my @records;
 
+
+
+if ($#ARGV != 1 ) {
+   print "Usage: sortfiles.pl <records file>\n" or
+      die "Print failure\n";
+   exit;
+} else {
+   $filename = $ARGV[0];
+   $containingFolder = $ARGV[1];
+}
+
+open my $names_fh, '<', $filename
+   or die "Unable to open names file: $filename\n";
+print "Input file: $filename\n";
+@records = <$names_fh>;
+close $names_fh or
+   die "Unable to close: $ARGV[0]\n";
+
+my $lines = 0;
+
 my $violation;
+my $statistic;
 my $location;
 my $year;
 my $value;
 my $coordinate;
 my $vector;
 
-if ($#ARGV != 0 ) {
-   print "Usage: sortfiles.pl <records file>\n" or
-      die "Print failure\n";
-   exit;
-} else {
-   $filename = $ARGV[0];
-}
-
-open my $names_fh, '<', $filename
-   or die "Unable to open names file: $filename\n";
-print "File: $filename\n";
-@records = <$names_fh>;
-close $names_fh or
-   die "Unable to close: $ARGV[0]\n";
-
-my $line = 0;
-
 my $folder;
 my $file;
+
+my $line;
+
 foreach my $record ( @records ) {
    if ( $csv->parse($record) ) {
       my @fields = $csv->fields();
-      $folder = $fields[2];
-      $file = $fields[3];
-      makeFile( $folder, $file);
-      print "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]\n";
+     
+      $year = $fields[0];
+      $location = $fields[1];
+      $violation = $fields[2];
+      $statistic = $fields[3];
+      $vector = $fields[4];
+      $coordinate = $fields[5];
+      $value = $fields[6];
+
+      $folder = $violation;
+      $file = "$statistic.csv";
+
+      $line = "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]";
+      print "Coordinate: ($coordinate)\n";
+
+      makeFile( makeStringConsoleSafe($folder), makeStringConsoleSafe($file), makeStringConsoleSafe($containingFolder));
+      writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
+
+      #print "$fields[0],$fields[6],$fields[1],$fields[5],$fields[4]\n";
    } else {
       warn "Line/record \'$line\' could not be parsed.\n";
    }
-   $line++;
+   $lines++;
 }
 
 sub makeFile{
-   my $path = stringConsoleSafe($_[0]);
-   my $file = stringConsoleSafe($_[1]);
-   #print "Path: $path";
-   #print "File: $file";
-   #system("mkdir $path; touch $path/$file");
+   my $path = $_[0];
+   my $file = $_[1];
+   my $container = $_[2];
+
+   system("mkdir $container");
+   system("mkdir $container/$path");
+   system("touch Test/$path/$file");
 }
 
-#Makes a string console safe by adding "\" infront of any spaces that are present
-#TODO: populate arraylsit with every character of the string then add '\' characters infront of spaces then send all the characters back to the string.
-sub stringConsoleSafe{
-   print "START: $_[0]\n";
+sub makeStringConsoleSafe{
    my $string = $_[0];
+
+   $string = replaceString($string," ","\\ ");
+   $string = makeFileSystemSafe($string);
+   return $string;
+}
+
+sub makeFileSystemSafe{
+   my $string = $_[0];
+
+   $string = replaceString($string,"(","[");
+   $string = replaceString($string,")","]");
+
+   return $string;
+}
+sub writeToFile{
+   my $filePath = $_[0];
+   my $data = $_[1];
+
+   open(my $fh, '>>', "$filePath")
+   or die "Could not open file \"$filePath\" $!";
+
+   say $fh "$data";
+
+   close $fh;
+}
+
+sub replaceString{
    my $i=0;
-   my $j;
+   my $string = $_[0];
+   my $unwantedWord = $_[1];
+   my $replacementString = $_[2];
+
    for($i = 0;$i<length $string;$i++){
+
       my $z = substr $string, $i, 1;
-      if($z eq " "){
-         $z = substr $string, $i, 1, "\\ ";
+
+      if($z eq $unwantedWord){
+
+         $z = substr $string, $i, 1, $replacementString;
          $i++;
       }
    }
-   print "END: $string\n";
    return $string;
 }
+
