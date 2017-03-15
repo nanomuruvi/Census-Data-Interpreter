@@ -22,6 +22,7 @@ my $EMPTY = q{};
 my $SPACE = q{ };
 my $COMMA = q{,};
 my $BAR = q{|};
+my $bar = Text::CSV->new({ sep_char => $BAR});
 my $csv = Text::CSV->new({ sep_char => $COMMA});
 
 my $input;
@@ -106,13 +107,14 @@ sub ParseFile{
 
     $record_count = 0;
     foreach my $counter (@records) {
-        if ($csv->parse($counter)) {
-            my @master_fields = $csv->fields();
+        if ($bar->parse($counter)) {
+            my @master_fields = $bar->fields();
             $record_count++;
             $year[$record_count]     = $master_fields[0];
             $value[$record_count]    = $master_fields[1];
             $location[$record_count] = $master_fields[2];
-#print $year[$record_count]."\n".$value[$record_count]."\n".$location[$record_count]."\n";
+            print  $year[$record_count]." ".$value[$record_count]."\n";
+            #print $year[$record_count]."\n".$value[$record_count]."\n".$location[$record_count]."\n";
         } else {
             warn "Line/record could not be parsed: $records[$record_count]\n";
         }
@@ -136,6 +138,7 @@ sub question{
     my @files;
     my @userInput;
     
+    print "There are $recordAmnt records\n";
     for(my $i = 0;$i < $recordAmnt;$i++){
         $record = $records[$i];
         if($csv->parse($record)){
@@ -148,11 +151,11 @@ sub question{
             print $prompts[$i]."\n";
             $userInput[$i] = <>;
             chomp $userInput[$i];
+
             if(lc($userInput[$i]) eq "yes"){
                 print $results[$i]."\n";
                 ParseFile($files[$i]);
             }
-            
         }else{
             warn "Failed to parse question $i.";
         }
