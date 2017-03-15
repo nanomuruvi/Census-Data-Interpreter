@@ -16,7 +16,6 @@ my $SPACE      = q{ };
 my $COMMA      = q{,};
 my $SLASH      = q{/};
 
-my $folders    = Text::CSV->new({ sep_char => $SLASH });
 my $csv        = Text::CSV->new({ sep_char => $COMMA });
 
 my $filename = $EMPTY;
@@ -82,10 +81,10 @@ $limit = (($limit>0)&&($limit<$recordAmt))?$limit:$recordAmt;
 my $seperator = ',';
 
 print "Records: $recordAmt, Initial Position: $initialPosition, Limit: $limit\n";
-
+my $record;
 for($i=$initialPosition+1;$i<=$limit;$i++){
 
-   my $record = $records[$i];
+   $record = $records[$i];
    if ( $csv->parse($record) ) {
       my @fields = $csv->fields();
 
@@ -113,7 +112,7 @@ for($i=$initialPosition+1;$i<=$limit;$i++){
 
       print "#$i Coordinate: ($coordinate)\n";
    } else {
-      warn "Line/record \'$line\' could not be parsed.\n";
+      warn "Line/record \'$i\' could not be parsed.\n";
    }
 }
 
