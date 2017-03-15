@@ -34,7 +34,9 @@ print "                                Welcome to Province Guide!!
  With this program we can help you decide which province in Canada would suit you best to live in!
  We will ask you a series of yes or no questions and display your results once they have been calculated.";
 
-print "\n\nPlease answer the following questions with either 'yes' or 'no':";
+print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
+
+question("questions.csv");
 
 print "\nDo you own a car?: ";
 $input = <>;
@@ -91,6 +93,7 @@ sub ParseFile{
     my @year;
     my @value;
     my @location;
+    my $filename = $_[0];
 
     #
     # Open, close file, load contents into record array
@@ -116,12 +119,13 @@ sub ParseFile{
     }
 }
 sub question{
-    my $dataFile;
+    my $dataFile = $_[0];
 
     my @records;
     
-    open my $questions,'<', $datafile or die "Unable to open $datafile\n";
-    @records = <questions>;
+    open my $questions, '<', $dataFile 
+    or die "Unable to open $dataFile\n";
+    @records = <$questions>;
     close $questions, or die "Unable to close $dataFile\n";
     
     my $recordAmnt = $#records;
@@ -130,27 +134,27 @@ sub question{
     my @prompts;
     my @results;
     my @files;
-    my @userResult;
+    my @userInput;
     
     for(my $i = 0;$i < $recordAmnt;$i++){
         $record = $records[$i];
-        if(csv->parse($record)){
-            my $fields = $csv->fields();
+        if($csv->parse($record)){
+            my @fields = $csv->fields();
             
             $prompts[$i] = $fields[0];
             $results[$i] = $fields[1];
             $files[$i] = $fields[2];
             
-            print $prompt[$i]."\n";
-            $userResult[$i] = <>;
-            
-            if(lc($userResult[$i]) eq "yes"){
-                print $result[$i]."\n";
+            print $prompts[$i]."\n";
+            $userInput[$i] = <>;
+            chomp $userInput[$i];
+            if(lc($userInput[$i]) eq "yes"){
+                print $results[$i]."\n";
                 ParseFile($files[$i]);
             }
             
         }else{
-            ward "Failed to parse question $i.";
+            warn "Failed to parse question $i.";
         }
     }
 }
