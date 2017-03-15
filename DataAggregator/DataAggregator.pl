@@ -36,7 +36,7 @@ print "                                Welcome to Province Guide!!
 
 print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
 
-question("questions");
+#question("questions");
 
 print "\nDo you own a car?: ";
 $input = <>;
