@@ -5,11 +5,10 @@
 #The output file will be in "Violation/Statistic.csv" in the format:
 #     {Year,Value,Location,Coordinate,Vector}
 #
-#
 
 use strict;
 use warnings;
-use version;   our $VERSION = qv('5.16.0');
+use version; our $VERSION = qv('5.16.0');
 use Text::CSV  1.32;
 
 my $EMPTY      = q{};
@@ -55,11 +54,11 @@ if ($#ARGV >= 5 ) {
 
 #removeFolder($containingFolder);
 
-open my $names_fh, '<', $filename
+open my $fh, '<', $filename
    or die "Unable to open names file: $filename\n";
 print "Input file: $filename\n";
-@records = <$names_fh>;
-close $names_fh or
+@records = <$fh>;
+close $fh or
    die "Unable to close: $ARGV[0]\n";
 
 my $violation;
@@ -80,7 +79,7 @@ my $recordAmt = $#records;
 #Makes the maximum record number to be searched the maximum record number
 $limit = (($limit>0)&&($limit<$recordAmt))?$limit:$recordAmt;
 
-my $seperator = '|';
+my $seperator = ',';
 
 print "Records: $recordAmt, Initial Position: $initialPosition, Limit: $limit\n";
 
@@ -109,7 +108,7 @@ for($i=$initialPosition+1;$i<=$limit;$i++){
 
       makeFolders( makeStringConsoleSafe($folder), makeStringConsoleSafe($containingFolder),makeStringConsoleSafe($file));
       
-      $line = "$year$seperator$value$seperator$location$seperator$coordinate$seperator$vector";
+      $line = "$year$seperator$value$seperator\"$location$seperator\"$coordinate$seperator$vector";
       writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
 
       print "#$i Coordinate: ($coordinate)\n";
