@@ -23,19 +23,37 @@ my $csv        = Text::CSV->new({ sep_char => $COMMA });
 my $filename = $EMPTY;
 my $containingFolder = $EMPTY;
 my @records;
+my $limit = 0;
+my $initialPosition = 0;
 
-
-
-if ($#ARGV != 1 ) {
-   print "Usage: sortfiles.pl <records file>\n" or
+print "$#ARGV\n";
+if ($#ARGV >= 5 ) {
+   print "Usage: sortfiles.pl <records file> <containing folder> <limit>? <starting position>? <remove containing folder(yes or no)>?\n" or
       die "Print failure\n";
    exit;
+}elsif ($#ARGV == 4){
+   $filename = $ARGV[0];
+   $containingFolder = $ARGV[1];
+   $limit = $ARGV[2];
+   $initialPosition = $ARGV[3];
+   if($ARGV[4] eq "yes"){
+      removeFolder($containingFolder);
+   }
+}elsif ($#ARGV == 3){
+   $filename = $ARGV[0];
+   $containingFolder = $ARGV[1];
+   $limit = $ARGV[2];
+   $initialPosition = $ARGV[3];
+}elsif ($#ARGV == 2){
+   $filename = $ARGV[0];
+   $containingFolder = $ARGV[1];
+   $limit = $ARGV[2];
 } else {
    $filename = $ARGV[0];
    $containingFolder = $ARGV[1];
 }
 
-removeFolder($containingFolder);
+#removeFolder($containingFolder);
 
 open my $names_fh, '<', $filename
    or die "Unable to open names file: $filename\n";
@@ -43,8 +61,6 @@ print "Input file: $filename\n";
 @records = <$names_fh>;
 close $names_fh or
    die "Unable to close: $ARGV[0]\n";
-
-my $lines = 0;
 
 my $violation;
 my $statistic;
@@ -58,8 +74,19 @@ my $folder;
 my $file;
 
 my $line;
+my $i;
+my $recordAmt = $#records;
 
-foreach my $record ( @records ) {
+#Makes the maximum record number to be searched the maximum record number
+$limit = (($limit>0)&&($limit<$recordAmt))?$limit:$recordAmt;
+
+my $seperator = '|';
+
+print "Records: $recordAmt, Initial Position: $initialPosition, Limit: $limit\n";
+
+for($i=$initialPosition+1;$i<=$limit;$i++){
+
+   my $record = $records[$i];
    if ( $csv->parse($record) ) {
       my @fields = $csv->fields();
      
@@ -71,20 +98,24 @@ foreach my $record ( @records ) {
       $coordinate = $fields[5];
       $value = $fields[6];
 
-      $folder = replaceString($violation,"/","or");
-      $folder = replaceString($violation,"\$","");
-      $file = "$statistic.csv";
+      $folder = $violation;
 
-      $line = "$year,$value,$location,$coordinate,$vector";
-      print "Coordinate: ($coordinate)\n";
+      $folder = replaceString($folder,"/","or");
+      $folder = replaceString($folder,"\$","");
+
+      $file = "$statistic.csv";
+      $file = replaceString($file,"/","or");
+      $file = replaceString($file,"\$","");
 
       makeFolders( makeStringConsoleSafe($folder), makeStringConsoleSafe($containingFolder),makeStringConsoleSafe($file));
+      
+      $line = "$year$seperator$value$seperator$location$seperator$coordinate$seperator$vector";
       writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
 
+      print "#$i Coordinate: ($coordinate)\n";
    } else {
       warn "Line/record \'$line\' could not be parsed.\n";
    }
-   $lines++;
 }
 
 sub makeFolders{
