@@ -1,0 +1,3 @@
+"Do you own a car?","You answered 'yes' to owning a car, so we will look through the 'Total impaired driving' data.","Data/Total impaired driving/Actual incidents.csv"
+"Do you or do you plan to own property?","You answered 'yes' to owning property, so we will look through the 'Total property crime violations' data.","Data/Total property crime violations/Actual incidents.csv"
+"Do you have kids?","You answered 'yes' to having kids, so we will look through the 'Total sexual violations against children' data.","Data/Total sexual violations against children/Actual incidents.csv"
