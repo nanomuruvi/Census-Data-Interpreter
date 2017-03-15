@@ -88,7 +88,7 @@ for($i=$initialPosition+1;$i<=$limit;$i++){
    my $record = $records[$i];
    if ( $csv->parse($record) ) {
       my @fields = $csv->fields();
-     
+
       $year = $fields[0];
       $location = $fields[1];
       $violation = $fields[2];
@@ -108,7 +108,7 @@ for($i=$initialPosition+1;$i<=$limit;$i++){
 
       makeFolders( makeStringConsoleSafe($folder), makeStringConsoleSafe($containingFolder),makeStringConsoleSafe($file));
       
-      $line = "$year$seperator$value$seperator\"$location$seperator\"$coordinate$seperator$vector";
+      $line = "$year$seperator$value$seperator\"$location\"$seperator$coordinate$seperator$vector";
       writeToFile( makeFileSystemSafe("$containingFolder/$folder/$file"),$line);
 
       print "#$i Coordinate: ($coordinate)\n";
