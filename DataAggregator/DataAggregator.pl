@@ -61,17 +61,16 @@ sub ParseFile{
     foreach my $counter (@records) {
         if ($bar->parse($counter)) {
             my @master_fields = $bar->fields();
-            $record_count++;
             $year[$record_count]     = $master_fields[0];
             $value[$record_count]    = $master_fields[1];
             $location[$record_count] = $master_fields[2];
             print  $year[$record_count]." ".$value[$record_count]."\n";
             #print $year[$record_count]."\n".$value[$record_count]."\n".$location[$record_count]."\n";
+	    $record_count++;
         } else {
             warn "Line/record could not be parsed: $records[$record_count]\n";
         }
     }
-    print "\n$#year ## $#value ## $#location\n";
     dataFinder(\@year, \@value, \@location);
 }
 
@@ -136,9 +135,9 @@ sub dataFinder{
     my @location = @{$_[2]};
     my $record_count = $#year;
 
-    print "Records : $record_count\n";
-    for(my $i = 0; $i < $record_count; $i++){
+    for(my $i = 0; $i < $record_count+1; $i++){
         if($year[$i] eq 2015){
+            print "match";
             if(isRelevant($location[$i])){
                 $values[$counter] = $value[$i];
                 print $values[$counter]."WOOHOO\n";
