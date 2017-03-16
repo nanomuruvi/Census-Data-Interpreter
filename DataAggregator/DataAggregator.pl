@@ -117,7 +117,7 @@ sub question{
         }
     }
 }
-sub ifRelevant{
+sub isRelevant{
     my @provinces = ("Canada","Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador");
     my $location = $_[0];
     
@@ -138,9 +138,8 @@ sub dataFinder{
 
     print "Records : $record_count\n";
     for(my $i = 0; $i < $record_count; $i++){
-        print "Loop $i";
-        if($year[$i] == 2015){
-            if(ifRelevant($location[$i])== 1){
+        if($year[$i] eq 2015){
+            if(isRelevant($location[$i])){
                 $values[$counter] = $value[$i];
                 print $values[$counter]."WOOHOO\n";
                 $counter++;
