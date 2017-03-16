@@ -71,6 +71,8 @@ sub ParseFile{
             warn "Line/record could not be parsed: $records[$record_count]\n";
         }
     }
+    dataFinder(@year, @value, @location);
+    
 }
 sub question{
     my $dataFile = $_[0];
@@ -112,4 +114,39 @@ sub question{
             warn "Failed to parse question $i.";
         }
     }
+}
+sub ifRelevant{
+    my @provinces = ("Canada","Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador");
+    my $location = $_[0];
+    
+    if($location~~ @provinces){
+        return 1;
+    } else {
+        return 0;
+    }
+
+}
+sub dataFinder{
+    my @values;
+    my $counter = 0;
+    my @year = @_[0];
+    my @value = @_[1];
+    my @location = @_[2];
+    my $record_count = $#year;
+
+    print "counter number: $record_count";
+    for(my $i = 0; $i < $record_count; $i++){
+        if($year[$i] == 2015){
+            if(ifRelevant($location[$i])== 1){
+                $values[$counter] = $value[$i];
+                print $values[$counter]."WOOHOO\n";
+                $counter++;
+            }
+
+        }
+
+    }
+    
+
+
 }
