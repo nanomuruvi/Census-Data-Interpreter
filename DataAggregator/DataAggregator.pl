@@ -21,9 +21,9 @@ use Text::CSV  1.32;
 my $EMPTY = q{};
 my $SPACE = q{ };
 my $COMMA = q{,};
-my $BAR = q{|};
-my $bar = Text::CSV->new({ sep_char => $BAR});
-my $csv = Text::CSV->new({ sep_char => $COMMA});
+my $BAR   = q{|};
+my $bar   = Text::CSV->new({ sep_char => $BAR});
+my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
 
 #
