@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-
+#
 #The given file's format is :
 #     {Year,Location,Violation,Statistic,Vector,Coordinate,Value}
 #The output file will be in "Violation/Statistic.csv" in the format:
@@ -25,7 +25,7 @@ my $limit = 0;
 my $initialPosition = 0;
 
 print "$#ARGV\n";
-if ($#ARGV >= 5 ) {
+if ( $#ARGV >= 5 || $#ARGV == 0 ) {
    print "Usage: sortfiles.pl <records file> <containing folder> <limit>? <starting position>? <remove containing folder(yes or no)>?\n" or
       die "Print failure\n";
    exit;
