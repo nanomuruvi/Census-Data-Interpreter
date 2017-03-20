@@ -1,3 +1,6 @@
+=for comment
+	This script makes sure the data is in a format which the graphing script will understand
+=cut
 use strict;
 use warnings;
 use version; our $VERSION = qv('5.16.0');

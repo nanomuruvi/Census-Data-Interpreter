@@ -1,3 +1,7 @@
+=for comment
+	This script makes a plot given an input file
+=cut
+
 use strict;
 use warnings;
 use version; our $VERSION = qv('5.16.0');
