@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use Switch;
 use version; our $VERSION = qv('5.16.0');
 use Statistics::R;
 use Text::CSV  1.32;
@@ -19,12 +18,12 @@ my $plotType;
 
 
 if ($#ARGV != 2 ) {
-   print "Usage: plotNames.pl <input file name> <pdf file name>\n" or
+   print "Usage: plotNames.pl <input file name> <pdf file name> <plot type>\n" or
       die "Print failure\n";
    exit;
-} else () {
+} else {
 	$inputData	= $ARGV[0];
-	$outPDF 	= $ARGV[1];
+	$outputPDF 	= $ARGV[1];
 	$plotType	= $ARGV[2];
 }
 
@@ -32,13 +31,13 @@ my $R = Statistics::R->new();
 
 my $RCommand;
 
-$R -> run(qq`pdf("$pdffilename" , paper="letter")`);
+$R -> run(qq`pdf("$outputPDF" , paper="letter")`);
 $R -> run(q`library(ggplot2)`);
 
-switch($plotType){
-	case "boxplot"	{ $RCommand = boxplot() }
-	case "bargraph"	{ $RCommand = bargraph() }
-	else { $RCommand = q`boxplot(c(1,2,3,4,4,4,4,4,5,5,5,6))` }
+if($plotType eq"boxplot"){
+	$RCommand = boxplot();
+}else{
+	$RCommand = q`boxplot(c(1,2,3,4,4,4,5,6,7,8,9))`;
 }
 
 #TODO: Need to add takign of input and allow for multiple datasets
