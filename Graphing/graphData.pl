@@ -38,7 +38,7 @@ $R -> run(q`library(ggplot2)`);
 switch($plotType){
 	case "boxplot"	{ $RCommand = boxplot() }
 	case "bargraph"	{ $RCommand = bargraph() }
-	else { $RCommand = q`boxplot(c(1,2,3,4,4,4,4,4,4,5,5,5,6))` }
+	else { $RCommand = q`boxplot(c(1,2,3,4,4,4,4,4,5,5,5,6))` }
 }
 
 #TODO: Need to add takign of input and allow for multiple datasets
