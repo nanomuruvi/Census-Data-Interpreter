@@ -46,8 +46,13 @@ $R -> run($RCommand);
 $R -> run(q`dev.off()`);
 $R -> stop();
 
+#Good R boxplot tutorial: https://www.youtube.com/watch?v=U64yNvlhv9I
 sub boxplot{
+	my $R = $_[0];
+	my $file = $_[1];
 	my $command;
+	$R -> run(q`data <- read.csv('file')`);
+	$R -> run(q`boxplot()`);
 	return $command;
 }
 
