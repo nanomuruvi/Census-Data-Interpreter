@@ -29,4 +29,3 @@ if ($#ARGV != 2 ) {
 	$outputPDF 	= $ARGV[1];
 	$plotType	= $ARGV[2];
 }
-

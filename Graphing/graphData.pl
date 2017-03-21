@@ -15,13 +15,12 @@ my $COMMA	= q{,};
 my $R = Statistics::R->new();
 my $csv		= Text::CSV->new({ sep_char => $COMMA });
 
-=begin comment
+=for comment
 	The outputPDF and inputData files are pretty self explanatory.
 	The plotType refers to the specific plot which shall be made, these include: "boxplot"
 	The inputData must be columns of data with a location as the column header with the 
 	location data underneath in a numerical format. If there is no value it should be left empty
 	Data values should remain in their respective columns
-=end comment
 =cut
 my $outputPDF;
 my $inputData;
@@ -44,7 +43,8 @@ $R -> run(q`library(ggplot2)`);
 
 if($plotType eq"boxplot"){
 	boxplot($inputData);
-}else{
+}elsif("bargraph"){
+	barGraph($inputData);
 }
 
 $R -> run(q`dev.off()`);
@@ -59,5 +59,8 @@ sub boxplot{
 }
 
 sub barGraph{
-	my $command;
+	my $file = $_[0];
+	$R -> run(qq`data <- read.csv("$file")`);
+	$R -> run(q`attach(data)`);
+	$R -> run(q`barplot(data)`);
 }
