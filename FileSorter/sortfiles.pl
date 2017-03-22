@@ -112,7 +112,7 @@ for($i=$initialPosition+1;$i<=$limit;$i++){
 
       print "#$i Coordinate: ($coordinate)\n";
    } else {
-      warn "Line/record \'$i\' could not be parsed.\n";
+      print "Line/record \'$i\' could not be parsed.\n";
    }
 }
 
