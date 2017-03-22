@@ -23,7 +23,7 @@ my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
-my @relevantYears = (2014,2015);
+my @relevantYears = (2015);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
 print "                                Welcome to Province Guide!!
@@ -59,8 +59,7 @@ sub ParseFile{
             $year[$recordCount]     = $fields[0];
             $value[$recordCount]    = $fields[1];
             $location[$recordCount] = $fields[2];
-            print  "Year: (".$year[$recordCount].") Value: (".$value[$recordCount].") Location: (".$location[$recordCount].")\n";
-        $recordCount++;
+            $recordCount++;
         } else {
             warn "Line/record could not be parsed: $records[$recordCount]\n";
         }
@@ -100,8 +99,8 @@ sub question{
 
             $results[$i] = $fields[1];
             $files[$i] = $fields[2];
-           
-            print $recordNum.". $prompts[$i]\n";
+ 
+            print $recordNum.". $prompts[$i]\n";          
             $userInput[$i] = <>;
             chomp $userInput[$i];
 
@@ -132,18 +131,18 @@ sub dataFinder{
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < $recordAmount+1; $i++){
-        print $i.". ".$year[$i]." - ";
+        #print $i.". ".$year[$i]." - ";
         if( isRelevant($year[$i], \@relevantYears) ){
-            print $location[$i]." - ";
+           # print $location[$i]." - ";
             if( isRelevant($location[$i], \@provinces) ){
                 $values[$counter] = $value[$i];
                 $location[$counter] = $location[$i];
-                print $values[$counter];
+                print "Location: ".$location[$i]." Value: ".$values[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
 
         }
-        print "\n";
+       # print "\n";
 
     }
     
