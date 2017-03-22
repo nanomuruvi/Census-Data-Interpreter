@@ -21,9 +21,9 @@ use Text::CSV  1.32;
 my $EMPTY = q{};
 my $SPACE = q{ };
 my $COMMA = q{,};
-my $BAR = q{|};
-my $bar = Text::CSV->new({ sep_char => $BAR});
-my $csv = Text::CSV->new({ sep_char => $COMMA});
+my $BAR   = q{|};
+my $bar   = Text::CSV->new({ sep_char => $BAR});
+my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
 
 #
@@ -59,7 +59,7 @@ sub ParseFile{
 
     $record_count = 0;
     foreach my $counter (@records) {
-        if ($bar->parse($counter)) {
+        if ($csv->parse($counter)) {
             my @master_fields = $bar->fields();
             $year[$record_count]     = $master_fields[0];
             $value[$record_count]    = $master_fields[1];
@@ -130,9 +130,9 @@ sub isRelevant{
 sub dataFinder{
     my @values;
     my $counter = 0;
-    my @year = @{$_[0]};
-    my @value = @{$_[1]};
-    my @location = @{$_[2]};
+    my @year = @_[0];
+    my @value = @_[1];
+    my @location = @_[2];
     my $record_count = $#year;
 
     for(my $i = 0; $i < $record_count+1; $i++){
