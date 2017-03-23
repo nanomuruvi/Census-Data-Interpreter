@@ -22,6 +22,7 @@ my $COMMA = q{,};
 my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
+my $numLocations = 13;
 
 my @relevantYears = (2015);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
@@ -130,7 +131,7 @@ sub dataFinder{
     my $counter = 0;
     my $recordAmount = $#year;
 
-    for(my $i = 0; $i < $recordAmount+1; $i++){
+    for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
         #print $i.". ".$year[$i]." - ";
         if( isRelevant($year[$i], \@relevantYears) ){
            # print $location[$i]." - ";
@@ -139,13 +140,115 @@ sub dataFinder{
                 $location[$counter] = $location[$i];
                 print "Location: ".$location[$i]." Value: ".$values[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
+
             }
 
         }
        # print "\n";
 
     }
+
+    sortData(\@values, \@location);
     
+}
+
+sub dataFile{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
+
+     # Open, close file, load contents into record array
+    open my $datainput_fh, '>', "graphinput"
+        or die "Unable to open data file: graphinput\n";
+
+    for(my $i = 0; $i < $numLocations; $i++){
+        if($i == $numLocations-1){
+            print $datainput_fh $location[$i]
+        } else {
+            print $datainput_fh $location[$i].","
+        }
+    }
+
+    print $datainput_fh "\n";
+
+    for(my $j = 0; $j < $numLocations; $j++){
+        if($values[$j] eq '..'){
+            print $datainput_fh " ,"
+
+        } else {
+            if($j == $numLocations-1){
+                print $datainput_fh $values[$j]
+            } else {
+                print $datainput_fh $values[$j].","
+            }
+        }
+
+    }
+
+    close $datainput_fh
+        or die "Unable to close: graphinput\n";
+
+}
+
+sub sortData{
+#
+# bubble sort the location and value by the value
+#
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
+    my $m = $numLocations-1;
+
+    print "Sort"."\n";
+
+    for my $j (0 .. $m) {
+        for my $i (0 .. $m - 1) {
+            if($values[$i] > $values[$i+1]) {
+                my $tempLoc = $location[$i];
+                my $tempVal = $values[$i];
+                $location[$i] = $location[$i+1];
+                $values[$i] = $values[$i+1];
+                $location[$i+1] = $tempLoc;
+                $values[$i+1] = $tempVal;
+             }
+         }
+    }
+     
+    for my $p (0..$m) {
+        print $location[$p]."-".$values[$p]."\n";
+    }                
+    dataFile(\@values, \@location);
+    populationAdjust();
 
 
 }
+
+sub populationAdjust{
+    my @population;
+    my @province;
+    my @popNum;
+
+    open my $population_fh, '<', "population.csv" 
+        or die "Unable to open population.csv\n";
+    @population = <$population_fh>;
+    close $population_fh, or die "Unable to close population.csv\n";
+
+    my $k = 0;
+      foreach my $l ( @population ){
+         if ( $csv->parse($l) ) {
+            my @info_fields = $csv->fields();
+            $province[$k] = $info_fields[0];
+            $popNum[$k] = $info_fields[1];
+            print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
+            $k++;
+         } else {
+            warn "Line/record could not be parsed: $population[$k]\n";
+         }
+      }
+
+}
+
+
+
+
+
+
+
