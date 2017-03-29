@@ -210,6 +210,8 @@ sub populationAdjust{
     my @population;
     my @province;
     my @popNum;
+    my @averages;
+    my $total = 0;
     my $filename = "population.csv";
 
     open my $populationFh, '<', "$filename" 
@@ -232,15 +234,23 @@ sub populationAdjust{
 
     $k = 0;
     my $j = 0;
+    my $x = 0;
     for($k = 0; $k < $#location; $k++){
         for($j = 0; $j < $#province; $j++){
             if($location[$k] eq $province[$j]){
                 $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
-                $values[$k] = sprintf "%.2f", $values[$k];
-                print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
-
+                $total = $total + $values[$k];
+                if(($k + 1) % ($#relevantYears + 1) == 0 && $k ne 0){
+                    $total = ($total / ($#relevantYears+1));
+                    $total = sprintf "%.2f", $total;
+                    print "Province: ".$province[$j]." Average: ".$total."\n";   
+                    $averages[$x] = $total; 
+                    $total = 0;
+                    $k++;
+                }
             }
         }
     }
+    #should pass average of the years instead
     sortData(\@values, \@location);
 }
