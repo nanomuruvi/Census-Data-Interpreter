@@ -144,6 +144,7 @@ sub dataFinder{
         }
     }
     sortData(\@relevantValues, \@relevantLocations, $counter);
+    populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
 sub dataFile{
@@ -187,9 +188,6 @@ sub sortData{
 #
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
-
-    print "$#locations Locations\n";
-
     for my $j (0 .. $#locations-1) {
         for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
@@ -201,17 +199,16 @@ sub sortData{
                 $values[$i+1] = $tempVal;
             }
         }
-        print "##$j##\n";
     }
-    print "Done Swapping.";
     for(my $p=0; $p < $#locations ; $p++ ){
         print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
-    #populationAdjust();
 }
 
 sub populationAdjust{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
     my @population;
     my @province;
     my @popNum;
@@ -228,10 +225,24 @@ sub populationAdjust{
             my @infoFields = $csv->fields();
             $province[$k] = $infoFields[0];
             $popNum[$k] = $infoFields[1];
-            print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
+            # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
          } else {
             warn "Line/record could not be parsed: $population[$k]\n";
          }
       }
+
+    $k = 0;
+    my $j = 0;
+    for($k = 0; $k < $#location; $k++){
+        for($j = 0; $j < $#location; $j++){
+            if($location[$k] eq $province[$j]){
+                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
+                $values[$k] = sprintf "%.2f", $values[$k];
+                #print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
+
+            }
+        }
+    }
+    sortData(\@values, \@location);
 }
