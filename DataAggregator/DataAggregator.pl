@@ -132,23 +132,19 @@ sub dataFinder{
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
-        #print $i.". ".$year[$i]." - ";
         if( isRelevant($year[$i], \@relevantYears) ){
-           # print $location[$i]." - ";
             if( isRelevant($location[$i], \@provinces) ){
                 $values[$counter] = $value[$i];
                 $location[$counter] = $location[$i];
-                print "Location: ".$location[$i]." Value: ".$values[$counter]." Year: ".$year[$i]."\n";
+                #print "Location: ".$location[$i]." Value: ".$values[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
 
             }
 
         }
-       # print "\n";
 
     }
-
-    sortData(\@values, \@location);
+   populationAdjust(\@values, \@location);
     
 }
 
@@ -213,15 +209,15 @@ sub sortData{
     }
      
     for my $p (0..$m) {
-        print $location[$p]."-".$values[$p]."\n";
+       #print $location[$p]."-".$values[$p]."\n";
     }                
+    
     dataFile(\@values, \@location);
-    populationAdjust();
-
-
 }
 
 sub populationAdjust{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
     my @population;
     my @province;
     my @popNum;
@@ -237,12 +233,26 @@ sub populationAdjust{
             my @info_fields = $csv->fields();
             $province[$k] = $info_fields[0];
             $popNum[$k] = $info_fields[1];
-            print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
+           # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
          } else {
             warn "Line/record could not be parsed: $population[$k]\n";
          }
       }
+
+    $k = 0;
+    my $j = 0;
+    for($k = 0; $k < $numLocations; $k++){
+        for($j = 0; $j < $numLocations; $j++){
+            if($location[$k] eq $province[$j]){
+                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
+                $values[$k] = sprintf "%.2f", $values[$k];
+                #print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
+
+            }
+        }
+    }
+    sortData(\@values, \@location);
 
 }
 
