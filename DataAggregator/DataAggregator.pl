@@ -251,6 +251,6 @@ sub populationAdjust{
             }
         }
     }
-    #should pass average of the years instead
+    #should pass average of the years and province instead
     sortData(\@values, \@location);
 }
