@@ -22,9 +22,8 @@ my $COMMA = q{,};
 my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
-my $numLocations = 13;
 
-my @relevantYears = (2015);
+my @relevantYears = (2015,2014,2013,2012,2011,2010);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
 print "                                Welcome to Province Guide!!
@@ -36,7 +35,7 @@ print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
 question("questions");
 
 # File Input Subroutine
-sub ParseFile{
+sub parseFile{
 
     my @records;
     my @year;
@@ -47,10 +46,10 @@ sub ParseFile{
     my $filename = $_[0];
 
     # Open, close file, load contents into record array
-    open my $crime_data_fh, '<', $filename
+    open my $crimeData, '<', $filename
         or die "Unable to open data file: $filename\n";
-    @records = <$crime_data_fh>;
-    close $crime_data_fh
+    @records = <$crimeData>;
+    close $crimeData
         or die "Unable to close: $filename\n";
 
     $recordCount = 0;
@@ -107,7 +106,7 @@ sub question{
 
             if(lc($userInput[$i]) eq "yes"){
                 print $results[$i]."\n";
-                ParseFile($files[$i]);
+                parseFile($files[$i]);
             }
         }else{
             warn "Failed to parse question $i.";
@@ -123,59 +122,54 @@ sub isRelevant{
 
 sub dataFinder{
 
-    my @values;
+    
     my @year = @{$_[0]};
     my @value = @{$_[1]};
     my @location = @{$_[2]};
+
+    my @relevantValues;
+    my @relevantLocations;
 
     my $counter = 0;
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
-        #print $i.". ".$year[$i]." - ";
         if( isRelevant($year[$i], \@relevantYears) ){
-           # print $location[$i]." - ";
             if( isRelevant($location[$i], \@provinces) ){
-                $values[$counter] = $value[$i];
-                $location[$counter] = $location[$i];
-                print "Location: ".$location[$i]." Value: ".$values[$counter]." Year: ".$year[$i]."\n";
+                $relevantValues[$counter] = $value[$i];
+                $relevantLocations[$counter] = $location[$i];
+                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
-
             }
-
         }
-       # print "\n";
-
     }
-
-    sortData(\@values, \@location);
-    
+    sortData(\@relevantValues, \@relevantLocations, $counter);
 }
 
 sub dataFile{
     my @values = @{$_[0]};
-    my @location = @{$_[1]};
+    my @locations = @{$_[1]};
 
      # Open, close file, load contents into record array
     open my $datainput_fh, '>', "graphinput"
         or die "Unable to open data file: graphinput\n";
 
-    for(my $i = 0; $i < $numLocations; $i++){
-        if($i == $numLocations-1){
-            print $datainput_fh $location[$i]
+    for(my $i = 0; $i < $#locations; $i++){
+        if($i == $#locations-1){
+            print $datainput_fh $locations[$i]
         } else {
-            print $datainput_fh $location[$i].","
+            print $datainput_fh $locations[$i].","
         }
     }
 
     print $datainput_fh "\n";
 
-    for(my $j = 0; $j < $numLocations; $j++){
+    for(my $j = 0; $j < $#locations; $j++){
         if($values[$j] eq '..'){
             print $datainput_fh " ,"
 
         } else {
-            if($j == $numLocations-1){
+            if($j == $#locations-1){
                 print $datainput_fh $values[$j]
             } else {
                 print $datainput_fh $values[$j].","
@@ -185,7 +179,6 @@ sub dataFile{
     }
     close $datainput_fh
         or die "Unable to close: graphinput\n";
-    
 }
 
 sub sortData{
@@ -193,54 +186,52 @@ sub sortData{
 # bubble sort the location and value by the value
 #
     my @values = @{$_[0]};
-    my @location = @{$_[1]};
-    my $m = $numLocations-1;
+    my @locations = @{$_[1]};
 
-    print "Sort"."\n";
+    print "$#locations Locations\n";
 
-    for my $j (0 .. $m) {
-        for my $i (0 .. $m - 1) {
+    for (my $j=0; $j < ($#locations-1) ; $j++) {
+        for(my $i = 0 ; $i < ($#locations-1) ; $i++){
             if($values[$i] > $values[$i+1]) {
-                my $tempLoc = $location[$i];
+                my $tempLoc = $locations[$i];
                 my $tempVal = $values[$i];
-                $location[$i] = $location[$i+1];
+                $locations[$i] = $locations[$i+1];
                 $values[$i] = $values[$i+1];
-                $location[$i+1] = $tempLoc;
+                $locations[$i+1] = $tempLoc;
                 $values[$i+1] = $tempVal;
-             }
-         }
+            }
+        }
+        print "##$j##\n";
     }
-     
-    for my $p (0..$m) {
-        print $location[$p]."-".$values[$p]."\n";
+    print "Done Swapping.";
+    for(my $p=0; $p < $#locations ; $p++ ){
+        print $locations[$p]."-".$values[$p]."\n";
     }                
-    dataFile(\@values, \@location);
+    dataFile(\@values, \@locations);
     populationAdjust();
-
-
 }
 
 sub populationAdjust{
     my @population;
     my @province;
     my @popNum;
+    my $filename = "population.csv";
 
-    open my $population_fh, '<', "population.csv" 
-        or die "Unable to open population.csv\n";
-    @population = <$population_fh>;
-    close $population_fh, or die "Unable to close population.csv\n";
+    open my $populationFh, '<', "$filename" 
+        or die "Unable to open $filename\n";
+    @population = <$populationFh>;
+    close $populationFh, or die "Unable to close population.csv\n";
 
     my $k = 0;
-      foreach my $l ( @population ){
-         if ( $csv->parse($l) ) {
-            my @info_fields = $csv->fields();
-            $province[$k] = $info_fields[0];
-            $popNum[$k] = $info_fields[1];
+      foreach my $location ( @population ){
+         if ( $csv->parse($location) ) {
+            my @infoFields = $csv->fields();
+            $province[$k] = $infoFields[0];
+            $popNum[$k] = $infoFields[1];
             print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
          } else {
             warn "Line/record could not be parsed: $population[$k]\n";
          }
       }
-
 }
