@@ -183,10 +183,9 @@ sub dataFile{
         }
 
     }
-
     close $datainput_fh
         or die "Unable to close: graphinput\n";
-
+    
 }
 
 sub sortData{
@@ -245,10 +244,3 @@ sub populationAdjust{
       }
 
 }
-
-
-
-
-
-
-
