@@ -201,14 +201,11 @@ sub sortData{
                 $values[$i+1] = $tempVal;
             }
         }
-        print "##$j##\n";
     }
-    print "Done Swapping.";
     for(my $p=0; $p < $#locations ; $p++ ){
         print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
-    #populationAdjust();
 }
 
 sub populationAdjust{
