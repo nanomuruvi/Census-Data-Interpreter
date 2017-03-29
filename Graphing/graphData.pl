@@ -45,6 +45,8 @@ if($plotType eq"boxplot"){
 	boxplot($inputData);
 }elsif("bargraph"){
 	barGraph($inputData);
+}elsif("lineGraph"){
+
 }
 
 $R -> run(q`dev.off()`);
@@ -63,4 +65,11 @@ sub barGraph{
 	$R -> run(qq`data <- read.csv("$file")`);
 	$R -> run(q`attach(data)`);
 	$R -> run(q`barplot(data)`);
+}
+
+sub lineGraph{
+	my $file = $_[0];
+	$R -> run(qq`data <- read.csv("$file")`);
+	$R -> run(q`attach(data)`);
+	$R -> run(q`ggplot(data$, aes(x=Year, y=Score, colour=Name, group=Name)) + geom_line() + geom_point(size=2) + ggtitle("Popularity of Names") + ylab("Ranking") + scale_y_continuous(breaks=c(0,1,2,3,4,5,6,7,8)`);
 }
