@@ -66,3 +66,6 @@ vignettes/*.pdf
 ehthumbs.db
 Thumbs.db
 a.out
+
+.RData
+.Rhistory
