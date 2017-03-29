@@ -32,7 +32,7 @@ print "                                Welcome to Province Guide!!
 
 print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
 
-question("questions");
+questions("questions");
 
 # File Input Subroutine
 sub parseFile{
@@ -69,7 +69,7 @@ sub parseFile{
 
 #Question asking subroutine
 #Takes in a file path as the parameter and asks all the questions in the file
-sub question{
+sub questions{
     my $dataFile = $_[0];
 
     my @records;
