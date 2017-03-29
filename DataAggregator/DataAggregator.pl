@@ -120,9 +120,7 @@ sub isRelevant{
 }
 
 
-sub dataFinder{
-
-    
+sub dataFinder{ 
     my @year = @{$_[0]};
     my @value = @{$_[1]};
     my @location = @{$_[2]};
@@ -138,7 +136,7 @@ sub dataFinder{
             if( isRelevant($location[$i], \@provinces) ){
                 $relevantValues[$counter] = $value[$i];
                 $relevantLocations[$counter] = $location[$i];
-                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
+                #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
         }
@@ -201,7 +199,7 @@ sub sortData{
         }
     }
     for(my $p=0; $p < $#locations ; $p++ ){
-        print $locations[$p]."-".$values[$p]."\n";
+        #print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
 }
@@ -220,26 +218,26 @@ sub populationAdjust{
     close $populationFh, or die "Unable to close population.csv\n";
 
     my $k = 0;
-      foreach my $location ( @population ){
-         if ( $csv->parse($location) ) {
+    foreach my $location ( @population ){
+        if ( $csv->parse($location) ) {
             my @infoFields = $csv->fields();
             $province[$k] = $infoFields[0];
             $popNum[$k] = $infoFields[1];
             # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
-         } else {
+        } else {
             warn "Line/record could not be parsed: $population[$k]\n";
-         }
-      }
+        }
+    }
 
     $k = 0;
     my $j = 0;
     for($k = 0; $k < $#location; $k++){
-        for($j = 0; $j < $#location; $j++){
+        for($j = 0; $j < $#province; $j++){
             if($location[$k] eq $province[$j]){
                 $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
                 $values[$k] = sprintf "%.2f", $values[$k];
-                #print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
+                print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
 
             }
         }
