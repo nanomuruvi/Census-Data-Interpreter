@@ -190,8 +190,8 @@ sub sortData{
 
     print "$#locations Locations\n";
 
-    for (my $j=0; $j < ($#locations-1) ; $j++) {
-        for(my $i = 0 ; $i < ($#locations-1) ; $i++){
+    for my $j (0 .. $#locations-1) {
+        for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
                 my $tempLoc = $locations[$i];
                 my $tempVal = $values[$i];
@@ -208,7 +208,7 @@ sub sortData{
         print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
-    populationAdjust();
+    #populationAdjust();
 }
 
 sub populationAdjust{
