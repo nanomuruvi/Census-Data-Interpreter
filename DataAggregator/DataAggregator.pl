@@ -88,8 +88,8 @@ sub questions{
     my @files;
     my @userInput;
     
-    print "There are $recordAmnt records\n";
-    for(my $i = 0;$i < $recordAmnt;$i++){
+    print "There are $recordAmnt questions.\n";
+    for(my $i = 0;$i <= $recordAmnt;$i++){
         $recordNum++;
         $record = $records[$i];
         if($csv->parse($record)){
@@ -113,7 +113,7 @@ sub questions{
         }
     }
 }
-sub isRelevant{
+sub isInside{
     my $value = $_[0];
     my @array = @{$_[1]};
     return grep( /^$value$/, @array );
@@ -132,10 +132,13 @@ sub dataFinder{
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
-        if( isRelevant($year[$i], \@relevantYears) ){
-            if( isRelevant($location[$i], \@provinces) ){
+        if( isInside($year[$i], \@relevantYears) ){
+            if( isInside($location[$i], \@provinces) ){
                 $relevantValues[$counter] = $value[$i];
-                $relevantLocations[$counter] = $location[$i];
+                #if(!isInside($location[$i],\@relevantLocations)){
+                    $relevantLocations[$counter] = $location[$i];
+                #}
+                
                 #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
