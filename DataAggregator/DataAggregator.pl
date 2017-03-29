@@ -5,6 +5,9 @@ use warnings;
 use version; our $VERSION = qv('5.16.0');
 use Text::CSV  1.32;
 
+use lib 'lib';
+use Location;
+
 #
 # markham.pl
 # Authors: Mitchell Knauer, Jovana Kusic, Kelsey Kirkland, Nano Muruvi
