@@ -120,9 +120,7 @@ sub isRelevant{
 }
 
 
-sub dataFinder{
-
-    
+sub dataFinder{ 
     my @year = @{$_[0]};
     my @value = @{$_[1]};
     my @location = @{$_[2]};
@@ -138,12 +136,13 @@ sub dataFinder{
             if( isRelevant($location[$i], \@provinces) ){
                 $relevantValues[$counter] = $value[$i];
                 $relevantLocations[$counter] = $location[$i];
-                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
+                #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
         }
     }
     sortData(\@relevantValues, \@relevantLocations, $counter);
+    populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
 sub dataFile{
@@ -187,9 +186,6 @@ sub sortData{
 #
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
-
-    print "$#locations Locations\n";
-
     for my $j (0 .. $#locations-1) {
         for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
@@ -203,12 +199,14 @@ sub sortData{
         }
     }
     for(my $p=0; $p < $#locations ; $p++ ){
-        print $locations[$p]."-".$values[$p]."\n";
+        #print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
 }
 
 sub populationAdjust{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
     my @population;
     my @province;
     my @popNum;
@@ -220,15 +218,29 @@ sub populationAdjust{
     close $populationFh, or die "Unable to close population.csv\n";
 
     my $k = 0;
-      foreach my $location ( @population ){
-         if ( $csv->parse($location) ) {
+    foreach my $location ( @population ){
+        if ( $csv->parse($location) ) {
             my @infoFields = $csv->fields();
             $province[$k] = $infoFields[0];
             $popNum[$k] = $infoFields[1];
-            print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
+            # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
-         } else {
+        } else {
             warn "Line/record could not be parsed: $population[$k]\n";
-         }
-      }
+        }
+    }
+
+    $k = 0;
+    my $j = 0;
+    for($k = 0; $k < $#location; $k++){
+        for($j = 0; $j < $#province; $j++){
+            if($location[$k] eq $province[$j]){
+                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
+                $values[$k] = sprintf "%.2f", $values[$k];
+                print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
+
+            }
+        }
+    }
+    sortData(\@values, \@location);
 }
