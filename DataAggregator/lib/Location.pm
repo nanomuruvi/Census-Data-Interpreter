@@ -1,5 +1,7 @@
 package Location;
 
+my $EMPTY = q{};
+
 sub new{
 	my $class = shift;
 	my $self = {
@@ -22,8 +24,11 @@ sub setName{
 
 sub getValue{
 	my ($self, $key) = @_;
-	my $value = $self->{values}->{$key};
-	return $value;
+	if (exists $self->{values}->{$key}){
+		return $self->{values}->{$key};
+	}else{
+		return '';
+	}
 }
 
 sub setValue{
