@@ -264,12 +264,18 @@ sub verdict{
     my @location = @{$_[1]};
     my $numSaved = 0;
 
+    my $j = 0;
+    foreach my $p ( @topThree ){
+        $numSaved++;
+        $j++;
+    }
+
     for(my $i = 0; $i < 3; $i++){
         $topThree[$numSaved] = $location[$i];
         $numSaved++;
     }
 
-    my $j = 0;
+    $j = 0;
     foreach my $p ( @topThree ){
         print $topThree[$j]."\n";
         $j++;
