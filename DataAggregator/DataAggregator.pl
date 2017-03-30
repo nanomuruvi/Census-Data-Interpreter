@@ -23,6 +23,7 @@ my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
+my @topThree;
 my @relevantYears = (2015,2014,2013,2012,2011,2010);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
@@ -30,7 +31,7 @@ print "                                Welcome to Province Guide!!
  With this program we can help you decide which province in Canada would suit you best to live in!
  We will ask you a series of yes or no questions and display your results once they have been calculated.";
 
-print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
+print "\n\nPlease answer the following questions with either 'yes' or anything else for 'no': \n";
 
 question("questions");
 
@@ -88,8 +89,7 @@ sub question{
     my @files;
     my @userInput;
     
-    print "There are $recordAmnt records\n";
-    for(my $i = 0;$i < $recordAmnt;$i++){
+    for(my $i = 0;$i <= $recordAmnt;$i++){
         $recordNum++;
         $record = $records[$i];
         if($csv->parse($record)){
@@ -141,7 +141,7 @@ sub dataFinder{
             }
         }
     }
-    sortData(\@relevantValues, \@relevantLocations, $counter);
+    #sortData(\@relevantValues, \@relevantLocations, $counter);
     populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
@@ -199,12 +199,14 @@ sub sortData{
         }
     }
     for(my $p=0; $p < $#locations ; $p++ ){
-        #print $locations[$p]."-".$values[$p]."\n";
+       # print $locations[$p]."-".$values[$p]."\n";
     }                
     dataFile(\@values, \@locations);
+    verdict(\@values, \@locations);
 }
 
 sub populationAdjust{
+    #TAKE IN MORE THAN JUST 2015
     my @values = @{$_[0]};
     my @location = @{$_[1]};
     my @population;
@@ -236,21 +238,41 @@ sub populationAdjust{
     my $j = 0;
     my $x = 0;
     for($k = 0; $k < $#location; $k++){
-        for($j = 0; $j < $#province; $j++){
+        foreach my $a ( @province ){
             if($location[$k] eq $province[$j]){
                 $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
                 $total = $total + $values[$k];
-                if(($k + 1) % ($#relevantYears + 1) == 0 && $k ne 0){
+                if(($k + 1) % ($#relevantYears + 1) == 0 && $k ne 0 || $k == $#location-1){
                     $total = ($total / ($#relevantYears+1));
                     $total = sprintf "%.2f", $total;
                     print "Province: ".$province[$j]." Average: ".$total."\n";   
                     $averages[$x] = $total; 
                     $total = 0;
-                    $k++;
+                    $x++;
                 }
             }
+            $j++;
         }
+        $j = 0;
     }
-    #should pass average of the years and province instead
-    sortData(\@values, \@location);
+
+    sortData(\@averages, \@province);
+}
+
+sub verdict{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
+    my $numSaved = 0;
+
+    for(my $i = 0; $i < 3; $i++){
+        $topThree[$numSaved] = $location[$i];
+        $numSaved++;
+    }
+
+    my $j = 0;
+    foreach my $p ( @topThree ){
+        print $topThree[$j]."\n";
+        $j++;
+    }
+
 }
