@@ -50,8 +50,15 @@ sub removeValue{
 	return $self->{array};
 }
 
+#Returns the first instance of the value
 sub indexOf{
-
+	my ($self, $value) = @_;
+	my $index = -1;
+	for(my $i = 0; $i<$#self->{array}; $i++){
+		if($self->{array}[$index] == $value && $index == -1){
+			$index = $i;
+		}
+	}
 }
 
 1;
