@@ -10,7 +10,6 @@ sub new{
 		name => shift,
 		values => {},
 	};
-
 	bless $self, $class;
 	return $self;
 }

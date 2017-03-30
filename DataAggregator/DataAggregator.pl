@@ -7,6 +7,7 @@ use Text::CSV  1.32;
 
 use lib 'lib';
 use Location;
+use ArrayList;
 
 #
 # markham.pl
@@ -28,24 +29,18 @@ my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
 
 my @relevantYears = (2015,2014,2013,2012,2011,2010);
-my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
-
-my $lol = new Location("Bruhfam");
-
-$lol->setValue('2015',532);
-print "Location :".$lol->getValue('2015')."\n";
+my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island",
+    "Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
 
-=for comment 
 print "                                Welcome to Province Guide!!
  With this program we can help you decide which province in Canada would suit you best to live in!
  We will ask you a series of yes or no questions and display your results once they have been calculated.";
 
 print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
 
-#questions("questions");
+questions("questions");
 
-=cut
 # File Input Subroutine
 sub parseFile{
 
