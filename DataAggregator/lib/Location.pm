@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 package Location;
 
 my $EMPTY = q{};
@@ -8,6 +10,7 @@ sub new{
 		name => shift,
 		values => {},
 	};
+
 	bless $self, $class;
 	return $self;
 }
@@ -32,12 +35,6 @@ sub getValue{
 }
 
 sub setValue{
-	my ($self, $key, $value) = @_;
-	$self->{name}->{$key} = $value if defined($value);
-	return $hash{'$_[0]'};
-}
-
-sub addValue{
 	my ($self, $key, $value) = @_;
 	$self->{values}->{$key} = $value if defined($value);
 	return $hash{'$_[0]'};
