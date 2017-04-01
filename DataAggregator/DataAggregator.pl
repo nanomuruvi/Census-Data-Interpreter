@@ -22,18 +22,55 @@ my $COMMA = q{,};
 my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
+my $minYear;
+my $maxYear;
+my $flag = 0;
 
 my @topThree;
-my @relevantYears = (2015,2014,2013,2012,2011,2010);
+my @relevantYears;
+#my @relevantYears = (2015,2014,2013,2012,2011,2010);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island","Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
 print "                                Welcome to Province Guide!!
  With this program we can help you decide which province in Canada would suit you best to live in!
- We will ask you a series of yes or no questions and display your results once they have been calculated.";
+ We will ask you a series of yes or no questions and display your results once they have been calculated."."\n\n";
 
-print "\n\nPlease answer the following questions with either 'yes' or anything else for 'no': \n";
+print "Please select a range of years to display the data (1998 - 2015)
+- Note that some questions will not be available depending on years given"."\n";
 
-question("questions");
+while($flag == 0){
+    print "Minimum year: ";
+    $minYear = <>;
+    chomp $minYear;
+    print "Maximum year: ";
+    $maxYear = <>;
+    chomp $maxYear;
+
+    if($minYear =~ /[^0-9]/){
+        print "Incorrect input, try again\n";
+        $flag = 0;
+    } 
+    elsif($maxYear =~ /[^0-9]/){
+        print "Incorrect input, try again\n";
+        $flag = 0;
+    } else {
+        if($minYear >= 1998 && $minYear <= 2015 && $maxYear >= 1998 && $maxYear <= 2015 && $maxYear > $minYear){
+            $flag = 1;
+        }
+    }
+}
+
+my $difference = $maxYear - $minYear;
+
+for(my $i = 0; $i <= $difference; $i++){
+    $relevantYears[$i] = $minYear;
+    $minYear++;
+}
+$minYear = $minYear - $difference - 1;
+
+print "\nPlease answer the following questions with either 'yes' or anything else for 'no': \n";
+
+question("questions", $minYear, $maxYear);
 
 # File Input Subroutine
 sub parseFile{
@@ -58,7 +95,11 @@ sub parseFile{
         if ($csv->parse($counter)) {
             my @fields = $csv->fields();
             $year[$recordCount]     = $fields[0];
-            $value[$recordCount]    = $fields[1];
+            if($fields[1] eq '..'){
+                $value[$recordCount] = 0;
+            } else {
+                $value[$recordCount]    = $fields[1];
+            }
             $location[$recordCount] = $fields[2];
             $recordCount++;
         } else {
@@ -72,6 +113,8 @@ sub parseFile{
 #Takes in a file path as the parameter and asks all the questions in the file
 sub question{
     my $dataFile = $_[0];
+    my $minYear = $_[1];
+    my $maxYear = $_[2];
 
     my @records;
     
@@ -99,19 +142,24 @@ sub question{
 
             $results[$i] = $fields[1];
             $files[$i] = $fields[2];
- 
-            print $recordNum.". $prompts[$i]\n";          
-            $userInput[$i] = <>;
-            chomp $userInput[$i];
 
-            if(lc($userInput[$i]) eq "yes"){
-                print $results[$i]."\n";
-                parseFile($files[$i]);
+            if($i == 2 && $minYear < 2008){
+                #No Data Present
+            } else {
+                print $recordNum.". $prompts[$i]\n";          
+                $userInput[$i] = <>;
+                chomp $userInput[$i];
+                if(lc($userInput[$i]) eq "yes"){
+                    print $results[$i]."\n";
+                    parseFile($files[$i]);
+                }
             }
+
         }else{
             warn "Failed to parse question $i.";
         }
     }
+
 }
 sub isRelevant{
     my $value = $_[0];
@@ -186,6 +234,7 @@ sub sortData{
 #
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
+
     for my $j (0 .. $#locations-1) {
         for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
