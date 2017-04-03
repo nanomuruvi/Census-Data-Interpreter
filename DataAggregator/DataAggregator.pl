@@ -126,7 +126,7 @@ sub isInside{
 }
 
 
-sub dataFinder{ 
+sub dataFinder{
     my @year = @{$_[0]};
     my @value = @{$_[1]};
     my @location = @{$_[2]};
@@ -140,16 +140,11 @@ sub dataFinder{
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
-        if( isInside($year[$i], \@relevantYears) ){
-            if( isInside($location[$i], \@provinces) ){
+        if(isInside( $year[$i], \@relevantYears)){
+            if(isInside( $location[$i], \@provinces)){
                 $relevantValues[$counter] = $value[$i];
-                #if(!isInside($location[$i],\@relevantLocations)){
-                    $relevantLocations[$counter] = $location[$i];
-                    if(){
-                        
-                    }
-                    $locationList.add(new Location())
-                #}
+                $relevantLocations[$counter] = $location[$i];
+                $locationList->add(new Location());
                 
                 #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
@@ -252,7 +247,7 @@ sub populationAdjust{
             if($location[$k] eq $province[$j]){
                 $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
                 $values[$k] = sprintf "%.2f", $values[$k];
-                print "\nProvy ".$location[$k]." Percentage: ".$values[$k]."\n";
+                print $location[$k]." (".$values[$k]."%)\n";
 
             }
         }

@@ -35,7 +35,7 @@ sub set{
 
 sub indexExists{
 	my ($self, $index) = @_;
-	my $exists = ()?:;
+	my $exists = ($#self>$index);
 }
 
 sub removeIndex{
