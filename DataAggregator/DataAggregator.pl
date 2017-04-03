@@ -131,6 +131,8 @@ sub dataFinder{
     my @value = @{$_[1]};
     my @location = @{$_[2]};
 
+    my $locationList = new ArrayList();
+
     my @relevantValues;
     my @relevantLocations;
 
@@ -143,6 +145,10 @@ sub dataFinder{
                 $relevantValues[$counter] = $value[$i];
                 #if(!isInside($location[$i],\@relevantLocations)){
                     $relevantLocations[$counter] = $location[$i];
+                    if(){
+                        
+                    }
+                    $locationList.add(new Location())
                 #}
                 
                 #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
