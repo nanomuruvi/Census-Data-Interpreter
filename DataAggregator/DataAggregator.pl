@@ -72,43 +72,6 @@ print "\nPlease answer the following questions with either 'yes' or anything els
 
 question("questions", $minYear, $maxYear);
 
-# File Input Subroutine
-sub parseFile{
-
-    my @records;
-    my @year;
-    my @value;
-    my @location;
-
-    my $recordCount = 0;
-    my $filename = $_[0];
-
-    # Open, close file, load contents into record array
-    open my $crimeData, '<', $filename
-        or die "Unable to open data file: $filename\n";
-    @records = <$crimeData>;
-    close $crimeData
-        or die "Unable to close: $filename\n";
-
-    $recordCount = 0;
-    foreach my $counter (@records) {
-        if ($csv->parse($counter)) {
-            my @fields = $csv->fields();
-            $year[$recordCount]     = $fields[0];
-            if($fields[1] eq '..'){
-                $value[$recordCount] = 0;
-            } else {
-                $value[$recordCount]    = $fields[1];
-            }
-            $location[$recordCount] = $fields[2];
-            $recordCount++;
-        } else {
-            warn "Line/record could not be parsed: $records[$recordCount]\n";
-        }
-    }
-    dataFinder(\@year, \@value, \@location);
-}
-
 #Question asking subroutine
 #Takes in a file path as the parameter and asks all the questions in the file
 sub question{
@@ -126,6 +89,7 @@ sub question{
     my $recordAmnt = $#records;
     my $record;
     my $recordNum = 0;
+    my $flag = 0;
     
     my @prompts;
     my @results;
@@ -151,7 +115,7 @@ sub question{
                 chomp $userInput[$i];
                 if(lc($userInput[$i]) eq "yes"){
                     print $results[$i]."\n";
-                    parseFile($files[$i]);
+                    parseFile($files[$i], $minYear);
                 }
             }
 
@@ -160,7 +124,47 @@ sub question{
         }
     }
 
+    verdictCheck();
+
 }
+# File Input Subroutine
+sub parseFile{
+
+    my @records;
+    my @year;
+    my @value;
+    my @location;
+
+    my $recordCount = 0;
+    my $filename = $_[0];
+    my $minYear = $_[1];
+
+    # Open, close file, load contents into record array
+    open my $crimeData, '<', $filename
+        or die "Unable to open data file: $filename\n";
+    @records = <$crimeData>;
+    close $crimeData
+        or die "Unable to close: $filename\n";
+
+    $recordCount = 0;
+    foreach my $counter (@records) {
+        if ($csv->parse($counter)) {
+            my @fields = $csv->fields();
+            $year[$recordCount]     = $fields[0];
+            if($fields[1] eq '..'){
+                $value[$recordCount] = 0;
+            } else {
+                $value[$recordCount]    = $fields[1];
+            }
+            $location[$recordCount] = $fields[2];
+            $recordCount++;
+        } else {
+            warn "Line/record could not be parsed: $records[$recordCount]\n";
+        }
+    }
+    dataFinder(\@year, \@value, \@location, $minYear);
+}
+
 sub isRelevant{
     my $value = $_[0];
     my @array = @{$_[1]};
@@ -172,6 +176,7 @@ sub dataFinder{
     my @year = @{$_[0]};
     my @value = @{$_[1]};
     my @location = @{$_[2]};
+    my $minYear = $_[3];
 
     my @relevantValues;
     my @relevantLocations;
@@ -184,13 +189,77 @@ sub dataFinder{
             if( isRelevant($location[$i], \@provinces) ){
                 $relevantValues[$counter] = $value[$i];
                 $relevantLocations[$counter] = $location[$i];
-                #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
         }
     }
-    #sortData(\@relevantValues, \@relevantLocations, $counter);
-    populationAdjust(\@relevantValues, \@relevantLocations);
+    populationAdjust(\@relevantValues, \@relevantLocations, $minYear);
+}
+
+sub populationAdjust{
+    my @values = @{$_[0]};
+    my @location = @{$_[1]};
+    my $minYear = $_[2];
+    my @population;
+    my @province;
+    my @popNum;
+    my @pop2006;
+    my @pop2011;
+    my @averages;
+    my $total = 0;
+    my $filename = "population.csv";
+
+    open my $populationFh, '<', "$filename" 
+        or die "Unable to open $filename\n";
+    @population = <$populationFh>;
+    close $populationFh, or die "Unable to close population.csv\n";
+
+    my $k = 0;
+    foreach my $location ( @population ){
+        if ( $csv->parse($location) ) {
+            my @infoFields = $csv->fields();
+            $province[$k] = $infoFields[0];
+            $pop2006[$k] = $infoFields[1];
+            $pop2011[$k] = $infoFields[2];
+            $k++;
+        } else {
+            warn "Line/record could not be parsed: $population[$k]\n";
+        }
+    }
+
+    $k = 0;
+    foreach my $pop ( @province ){
+        if($minYear <= 2006){
+            $popNum[$k] = $pop2006[$k];
+        } else {
+            $popNum[$k] = $pop2011[$k];
+        }
+        $k++;
+    }
+    
+    $k = 0;
+    my $j = 0;
+    my $x = 0;
+    for($k = 0; $k < $#location; $k++){
+        foreach my $a ( @province ){
+            if($location[$k] eq $province[$j]){
+                $values[$k] = ($values[$k] / $popNum[$j]) *100;
+                $total = $total + $values[$k];
+                if(($k + 1) % ($#relevantYears + 1) == 0 && $k ne 0 || $k == $#location-1){
+                    $total = ($total / ($#relevantYears+1));
+                    $total = sprintf "%.2f", $total;
+                    #print "Province: ".$province[$j]." Average: ".$total."\n";   
+                    $averages[$x] = $total; 
+                    $total = 0;
+                    $x++;
+                }
+            }
+            $j++;
+        }
+        $j = 0;
+    }
+
+    sortData(\@averages, \@province);
 }
 
 sub dataFile{
@@ -246,74 +315,17 @@ sub sortData{
                 $values[$i+1] = $tempVal;
             }
         }
-    }
-    for(my $p=0; $p < $#locations ; $p++ ){
-       # print $locations[$p]."-".$values[$p]."\n";
-    }                
+    }              
     dataFile(\@values, \@locations);
     verdict(\@values, \@locations);
-}
-
-sub populationAdjust{
-    #TAKE IN MORE THAN JUST 2015
-    my @values = @{$_[0]};
-    my @location = @{$_[1]};
-    my @population;
-    my @province;
-    my @popNum;
-    my @averages;
-    my $total = 0;
-    my $filename = "population.csv";
-
-    open my $populationFh, '<', "$filename" 
-        or die "Unable to open $filename\n";
-    @population = <$populationFh>;
-    close $populationFh, or die "Unable to close population.csv\n";
-
-    my $k = 0;
-    foreach my $location ( @population ){
-        if ( $csv->parse($location) ) {
-            my @infoFields = $csv->fields();
-            $province[$k] = $infoFields[0];
-            $popNum[$k] = $infoFields[1];
-            # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
-            $k++;
-        } else {
-            warn "Line/record could not be parsed: $population[$k]\n";
-        }
-    }
-
-    $k = 0;
-    my $j = 0;
-    my $x = 0;
-    for($k = 0; $k < $#location; $k++){
-        foreach my $a ( @province ){
-            if($location[$k] eq $province[$j]){
-                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
-                $total = $total + $values[$k];
-                if(($k + 1) % ($#relevantYears + 1) == 0 && $k ne 0 || $k == $#location-1){
-                    $total = ($total / ($#relevantYears+1));
-                    $total = sprintf "%.2f", $total;
-                    print "Province: ".$province[$j]." Average: ".$total."\n";   
-                    $averages[$x] = $total; 
-                    $total = 0;
-                    $x++;
-                }
-            }
-            $j++;
-        }
-        $j = 0;
-    }
-
-    sortData(\@averages, \@province);
 }
 
 sub verdict{
     my @values = @{$_[0]};
     my @location = @{$_[1]};
     my $numSaved = 0;
-
     my $j = 0;
+
     foreach my $p ( @topThree ){
         $numSaved++;
         $j++;
@@ -323,11 +335,147 @@ sub verdict{
         $topThree[$numSaved] = $location[$i];
         $numSaved++;
     }
+    
+}
 
-    $j = 0;
-    foreach my $p ( @topThree ){
-        print $topThree[$j]."\n";
-        $j++;
+sub verdictCheck{
+    my $numOntario = 0;
+    my $numQuebec = 0;
+    my $numNovaScotia = 0;
+    my $numNewBrunswick = 0;
+    my $numManitoba = 0;
+    my $numBritishColumbia = 0;
+    my $numPEI = 0;
+    my $numSaskatchewan = 0;
+    my $numAlberta = 0;
+    my $numNewfoundland = 0;
+    my $numYukon = 0;
+    my $numNorthwest = 0;
+    my $numNunavut = 0;
+    my $greatestNum = 0;
+    my $displayMessage = "\nCongratulations! Based on the questions you have answered, we have determined that best province for you is: ";
+    my $k = 0;
+
+    foreach my $count ( @topThree ){
+        if($topThree[$k] eq "Ontario"){
+            $numOntario++;
+            $greatestNum = sortTopProvinces($numOntario, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Quebec"){
+            $numQuebec++;
+            $greatestNum = sortTopProvinces($numQuebec, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Nova Scotia"){
+            $numNovaScotia++;
+            $greatestNum = sortTopProvinces($numNovaScotia, $greatestNum);
+        }
+        elsif($topThree[$k] eq "New Brunswick"){
+            $numNewBrunswick++;
+            $greatestNum = sortTopProvinces($numNewBrunswick, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Manitoba"){
+            $numManitoba++;
+            $greatestNum = sortTopProvinces($numManitoba, $greatestNum);
+        }
+        elsif($topThree[$k] eq "British Columbia"){
+            $numBritishColumbia++;
+            $greatestNum = sortTopProvinces($numBritishColumbia, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Prince Edward Island"){
+            $numPEI++;
+            $greatestNum = sortTopProvinces($numPEI, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Saskatchewan"){
+            $numSaskatchewan++;
+            $greatestNum = sortTopProvinces($numSaskatchewan, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Alberta"){
+            $numAlberta++;
+            $greatestNum = sortTopProvinces($numAlberta, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Newfoundland and Labrador"){
+            $numNewfoundland++;
+            $greatestNum = sortTopProvinces($numNewfoundland, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Yukon"){
+            $numYukon++;
+            $greatestNum = sortTopProvinces($numYukon, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Northwest Territories"){
+            $numNorthwest++;
+            $greatestNum = sortTopProvinces($numNorthwest, $greatestNum);
+        }
+        elsif($topThree[$k] eq "Nunavut"){
+            $numNunavut++;
+            $greatestNum = sortTopProvinces($numNunavut, $greatestNum);
+        }
+        $k++;
+    }
+    my $input;
+        
+    if($greatestNum != 0){
+        if($greatestNum == $numOntario){
+            print $displayMessage."Ontario!\n";
+        }
+        elsif($greatestNum == $numQuebec){
+            print $displayMessage."Quebec!\n";
+        }
+        elsif($greatestNum == $numNovaScotia){
+            print $displayMessage."Nova Scotia!\n";
+        }
+        elsif($greatestNum == $numNewBrunswick){
+            print $displayMessage."New Brunswick!\n";
+        }
+        elsif($greatestNum == $numManitoba){
+            print $displayMessage."Manitoba!\n";
+        }
+        elsif($greatestNum == $numBritishColumbia){
+            print $displayMessage."British Columbia!\n";
+        }
+        elsif($greatestNum == $numPEI){
+            print $displayMessage."Prince Edward Island!\n";
+        }
+        elsif($greatestNum == $numSaskatchewan){
+            print $displayMessage."Saskatchewan!\n";
+        }
+        elsif($greatestNum == $numAlberta){
+            print $displayMessage."Alberta!\n";
+        }
+        elsif($greatestNum == $numNewfoundland){
+            print $displayMessage."Newfoundland and Labrador!\n";
+        }
+        elsif($greatestNum == $numYukon){
+            print $displayMessage."Yukon!\n";
+        }
+        elsif($greatestNum == $numNorthwest){
+            print $displayMessage."Northwest Territories!\n";
+        }
+        elsif($greatestNum == $numNunavut){
+            print $displayMessage."Nunavut!\n";
+        }
+    } else {
+        print "\nIn order for this program to run as intended, and for us to help you,
+                 at least one 'yes' answer is necessary next time for us to access the relevant data!\n";
+        print "\nWant to try again? Type yes! ";
+        $input = <>;
+        chomp $input;
+        if(lc($input) eq "yes"){
+            question("questions", $minYear, $maxYear);
+        } 
+    }
+}
+
+sub sortTopProvinces{
+    my $numProvince = $_[0];
+    my $greatestNum = $_[1];
+
+    if($numProvince > $greatestNum){
+        return $numProvince
+    } else {
+        return $greatestNum;
     }
 
 }
+
+
+
