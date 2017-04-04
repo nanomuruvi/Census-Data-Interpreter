@@ -354,6 +354,7 @@ sub verdictCheck{
     my $numNunavut = 0;
     my $greatestNum = 0;
     my $displayMessage = "\nCongratulations! Based on the questions you have answered, we have determined that best province for you is: ";
+    my $flag = 0;
     my $k = 0;
 
     foreach my $count ( @topThree ){
@@ -415,46 +416,112 @@ sub verdictCheck{
         
     if($greatestNum != 0){
         if($greatestNum == $numOntario){
-            print $displayMessage."Ontario!\n";
+            if($flag == 1){
+                print "and Ontario ";
+            } else {
+                print $displayMessage."Ontario ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numQuebec){
-            print $displayMessage."Quebec!\n";
+        if($greatestNum == $numQuebec){
+            if($flag == 1){
+                print "and Quebec ";
+            } else {
+                print $displayMessage."Quebec ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numNovaScotia){
-            print $displayMessage."Nova Scotia!\n";
+        if($greatestNum == $numNovaScotia){
+            if($flag == 1){
+                print "and Nova Scotia ";
+            } else {
+                print $displayMessage."Nova Scotia ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numNewBrunswick){
-            print $displayMessage."New Brunswick!\n";
+        if($greatestNum == $numNewBrunswick){
+            if($flag == 1){
+                print "and New Brunswick ";
+            } else {
+                print $displayMessage."New Brunswick ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numManitoba){
-            print $displayMessage."Manitoba!\n";
+        if($greatestNum == $numManitoba){
+            if($flag == 1){
+                print "and Manitoba ";
+            } else {
+                print $displayMessage."Manitoba ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numBritishColumbia){
-            print $displayMessage."British Columbia!\n";
+        if($greatestNum == $numBritishColumbia){
+            if($flag == 1){
+                print "and British Columbia ";
+            } else {
+                print $displayMessage."British Columbia ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numPEI){
-            print $displayMessage."Prince Edward Island!\n";
+        if($greatestNum == $numPEI){
+            if($flag == 1){
+                print "and Prince Edward Island ";
+            } else {
+                print $displayMessage."Prince Edward Island ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numSaskatchewan){
-            print $displayMessage."Saskatchewan!\n";
+        if($greatestNum == $numSaskatchewan){
+            if($flag == 1){
+                print "and Saskatchewan ";
+            } else {
+                print $displayMessage."Saskatchewan ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numAlberta){
-            print $displayMessage."Alberta!\n";
+        if($greatestNum == $numAlberta){
+            if($flag == 1){
+                print "and Alberta ";
+            } else {
+                print $displayMessage."Alberta ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numNewfoundland){
-            print $displayMessage."Newfoundland and Labrador!\n";
+        if($greatestNum == $numNewfoundland){
+            if($flag == 1){
+                print "and Newfoundland and Labrador ";
+            } else {
+                print $displayMessage."Newfoundland and Labrador ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numYukon){
-            print $displayMessage."Yukon!\n";
+        if($greatestNum == $numYukon){
+            if($flag == 1){
+                print "and Yukon ";
+            } else {
+                print $displayMessage."Yukon ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numNorthwest){
-            print $displayMessage."Northwest Territories!\n";
+        if($greatestNum == $numNorthwest){
+            if($flag == 1){
+                print "and Northwest Territories ";
+            } else {
+                print $displayMessage."Northwest Territories ";
+            }
+            $flag = 1;
         }
-        elsif($greatestNum == $numNunavut){
-            print $displayMessage."Nunavut!\n";
+        if($greatestNum == $numNunavut){
+            if($flag == 1){
+                print "and Nunavut ";
+            } else {
+                print $displayMessage."Nunavut ";
+            }
+            $flag = 1;
         }
+        print "!\n";
     } else {
-        print "\nIn order for this program to run as intended, and for us to help you,
+        print "In order for this program to run as intended, and for us to help you,
                  at least one 'yes' answer is necessary next time for us to access the relevant data!\n";
         print "\nWant to try again? Type yes! ";
         $input = <>;
