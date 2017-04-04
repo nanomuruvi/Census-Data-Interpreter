@@ -353,7 +353,7 @@ sub verdictCheck{
     my $numNorthwest = 0;
     my $numNunavut = 0;
     my $greatestNum = 0;
-    my $displayMessage = "\nCongratulations! Based on the questions you have answered, we have determined that best province for you is: ";
+    my $displayMessage = "\nCongratulations! Based on the questions you have answered, we have determined that best province(s) for you is: ";
     my $flag = 0;
     my $k = 0;
 
@@ -417,105 +417,105 @@ sub verdictCheck{
     if($greatestNum != 0){
         if($greatestNum == $numOntario){
             if($flag == 1){
-                print "and Ontario ";
+                print " and Ontario";
             } else {
-                print $displayMessage."Ontario ";
+                print $displayMessage."Ontario";
             }
             $flag = 1;
         }
         if($greatestNum == $numQuebec){
             if($flag == 1){
-                print "and Quebec ";
+                print " and Quebec";
             } else {
-                print $displayMessage."Quebec ";
+                print $displayMessage."Quebec";
             }
             $flag = 1;
         }
         if($greatestNum == $numNovaScotia){
             if($flag == 1){
-                print "and Nova Scotia ";
+                print " and Nova Scotia";
             } else {
-                print $displayMessage."Nova Scotia ";
+                print $displayMessage."Nova Scotia";
             }
             $flag = 1;
         }
         if($greatestNum == $numNewBrunswick){
             if($flag == 1){
-                print "and New Brunswick ";
+                print " and New Brunswick";
             } else {
-                print $displayMessage."New Brunswick ";
+                print $displayMessage."New Brunswick";
             }
             $flag = 1;
         }
         if($greatestNum == $numManitoba){
             if($flag == 1){
-                print "and Manitoba ";
+                print " and Manitoba";
             } else {
-                print $displayMessage."Manitoba ";
+                print $displayMessage."Manitoba";
             }
             $flag = 1;
         }
         if($greatestNum == $numBritishColumbia){
             if($flag == 1){
-                print "and British Columbia ";
+                print " and British Columbia";
             } else {
-                print $displayMessage."British Columbia ";
+                print $displayMessage."British Columbia";
             }
             $flag = 1;
         }
         if($greatestNum == $numPEI){
             if($flag == 1){
-                print "and Prince Edward Island ";
+                print " and Prince Edward Island";
             } else {
-                print $displayMessage."Prince Edward Island ";
+                print $displayMessage."Prince Edward Island";
             }
             $flag = 1;
         }
         if($greatestNum == $numSaskatchewan){
             if($flag == 1){
-                print "and Saskatchewan ";
+                print " and Saskatchewan";
             } else {
-                print $displayMessage."Saskatchewan ";
+                print $displayMessage."Saskatchewan";
             }
             $flag = 1;
         }
         if($greatestNum == $numAlberta){
             if($flag == 1){
-                print "and Alberta ";
+                print " and Alberta";
             } else {
-                print $displayMessage."Alberta ";
+                print $displayMessage."Alberta";
             }
             $flag = 1;
         }
         if($greatestNum == $numNewfoundland){
             if($flag == 1){
-                print "and Newfoundland and Labrador ";
+                print " and Newfoundland and Labrador";
             } else {
-                print $displayMessage."Newfoundland and Labrador ";
+                print $displayMessage."Newfoundland and Labrador";
             }
             $flag = 1;
         }
         if($greatestNum == $numYukon){
             if($flag == 1){
-                print "and Yukon ";
+                print " and Yukon";
             } else {
-                print $displayMessage."Yukon ";
+                print $displayMessage."Yukon";
             }
             $flag = 1;
         }
         if($greatestNum == $numNorthwest){
             if($flag == 1){
-                print "and Northwest Territories ";
+                print " and Northwest Territories";
             } else {
-                print $displayMessage."Northwest Territories ";
+                print $displayMessage."Northwest Territories";
             }
             $flag = 1;
         }
         if($greatestNum == $numNunavut){
             if($flag == 1){
-                print "and Nunavut ";
+                print " and Nunavut";
             } else {
-                print $displayMessage."Nunavut ";
+                print $displayMessage."Nunavut";
             }
             $flag = 1;
         }
