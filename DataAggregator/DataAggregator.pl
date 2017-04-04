@@ -85,7 +85,7 @@ sub questions{
     @records = <$questions>;
     close $questions, or die "Unable to close $dataFile\n";
     
-    my $recordAmnt = $#records;
+    my $recordAmnt = $#records+1;
     my $record;
     my $recordNum = 0;
     
@@ -95,7 +95,7 @@ sub questions{
     my @userInput;
     
     print "There are $recordAmnt questions.\n";
-    for(my $i = 0;$i <= $recordAmnt;$i++){
+    for(my $i = 0;$i < $recordAmnt;$i++){
         $recordNum++;
         $record = $records[$i];
         if($csv->parse($record)){
@@ -113,6 +113,8 @@ sub questions{
             if(lc($userInput[$i]) eq "yes"){
                 print $results[$i]."\n";
                 parseFile($files[$i]);
+            }elsif(lc($userInput[$i]) eq "x"){
+                $i = $recordAmnt+1;
             }
         }else{
             warn "Failed to parse question $i.";
@@ -151,51 +153,66 @@ sub dataFinder{
             }
         }
     }
+    graphLocationArrayList("LocationData.csv", $locationList);
     sortData(\@relevantValues, \@relevantLocations, $counter);
     populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
-sub dataFile{
+sub graphLocationArrayList{
+    my $datafile = $_[0];
+    my $locationList = $_[1];
+    open my $datainput, '>', "$datafile"
+        or die "Unable to open data file: graphinput\n";
+    for(my $i = 0;$i < ($locationList->size()); $i++){
+        print $locationList->get($i)->getName();
+    }
+    close $datainput
+        or die "Unable to close: graphinput\n";
+}
+
+sub makeGraphInput{
+
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
+    my $datafile = $_[2];
 
      # Open, close file, load contents into record array
-    open my $datainput_fh, '>', "graphinput"
+    open my $datainput, '>', "$datafile"
         or die "Unable to open data file: graphinput\n";
 
     for(my $i = 0; $i < $#locations; $i++){
         if($i == $#locations-1){
-            print $datainput_fh $locations[$i]
+            print $datainput $locations[$i]
         } else {
-            print $datainput_fh $locations[$i].","
+            print $datainput $locations[$i].","
         }
     }
-
-    print $datainput_fh "\n";
-
+    print $datainput "\n";
     for(my $j = 0; $j < $#locations; $j++){
         if($values[$j] eq '..'){
-            print $datainput_fh " ,"
+            print $datainput " ,"
 
         } else {
             if($j == $#locations-1){
-                print $datainput_fh $values[$j]
+                print $datainput $values[$j]
             } else {
-                print $datainput_fh $values[$j].","
+                print $datainput $values[$j].","
             }
         }
 
     }
-    close $datainput_fh
+    close $datainput
         or die "Unable to close: graphinput\n";
 }
 
 sub sortData{
+    my @values = @{$_[0]};
+    my @locations = @{$_[1]};
+    #my $locationList = $_[2];
 #
 # bubble sort the location and value by the value
 #
-    my @values = @{$_[0]};
-    my @locations = @{$_[1]};
+    
     for my $j (0 .. $#locations-1) {
         for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
@@ -211,7 +228,7 @@ sub sortData{
     for(my $p=0; $p < $#locations ; $p++ ){
         #print $locations[$p]."-".$values[$p]."\n";
     }                
-    dataFile(\@values, \@locations);
+    makeGraphInput(\@values, \@locations, "graphinput.csv");
 }
 
 sub populationAdjust{
@@ -252,5 +269,5 @@ sub populationAdjust{
             }
         }
     }
-    sortData(\@values, \@location);
+    #sortData(\@values, \@location);
 }
