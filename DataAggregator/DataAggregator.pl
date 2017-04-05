@@ -85,7 +85,7 @@ sub questions{
     @records = <$questions>;
     close $questions, or die "Unable to close $dataFile\n";
     
-    my $recordAmnt = $#records;
+    my $recordAmnt = $#records+1;
     my $record;
     my $recordNum = 0;
     
@@ -95,7 +95,7 @@ sub questions{
     my @userInput;
     
     print "There are $recordAmnt questions.\n";
-    for(my $i = 0;$i <= $recordAmnt;$i++){
+    for(my $i = 0;$i < $recordAmnt;$i++){
         $recordNum++;
         $record = $records[$i];
         if($csv->parse($record)){
@@ -113,6 +113,8 @@ sub questions{
             if(lc($userInput[$i]) eq "yes"){
                 print $results[$i]."\n";
                 parseFile($files[$i]);
+            }elsif(lc($userInput[$i]) eq "x"){
+                $i=$recordAmnt;
             }
         }else{
             warn "Failed to parse question $i.";
@@ -122,80 +124,104 @@ sub questions{
 sub isInside{
     my $value = $_[0];
     my @array = @{$_[1]};
-    return grep( /^$value$/, @array );
+    return (grep{/^$value$/} @array );
+}
+sub isValueIn{
+    my ($v,@array)=@_;
+    my $isThere;
+    my $i = 0;
+    foreach my $value(@array){
+        $isThere = $isThere || $value == $v;
+        $i++;
+    }
+    return $isThere;
 }
 
 
 sub dataFinder{
-    my @year = @{$_[0]};
-    my @value = @{$_[1]};
-    my @location = @{$_[2]};
+    my @years = @{$_[0]};
+    my @values = @{$_[1]};
+    my @locations = @{$_[2]};
 
-    my $locationList = new ArrayList();
-
+    my @relevantYears;
     my @relevantValues;
     my @relevantLocations;
 
     my $counter = 0;
-    my $recordAmount = $#year;
+    my $recordAmount = $#years;
 
+    #Removed the /2 because not sure why it was even there
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
-        if(isInside( $year[$i], \@relevantYears)){
-            if(isInside( $location[$i], \@provinces)){
-                $relevantValues[$counter] = $value[$i];
-                $relevantLocations[$counter] = $location[$i];
-                $locationList->add(new Location());
+
+        if(isInside( $years[$i], \@relevantYears)){
+            print ("Hello World 2\n");
+            if(isInside( $locations[$i], \@provinces)){
+
+                $relevantYears[$counter] = $years[$i];
+                $relevantValues[$counter] = $values[$i];
+                $relevantLocations[$counter] = $locations[$i];
                 
-                #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
+                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$years[$i]."\n";
                 $counter++;
             }
         }
     }
-    sortData(\@relevantValues, \@relevantLocations, $counter);
-    populationAdjust(\@relevantValues, \@relevantLocations);
+    makeGraphInput(\@relevantValues, \@relevantLocations, \@relevantYears);
+    #sortData(\@relevantValues, \@relevantLocations, \@relevantYears);
+    #populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
-sub dataFile{
+sub makeGraphInput{
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
+    my @years = @{$_[2]};
+    my $datafile = "graphinput.csv";
+    my @printedLocations = ();
 
      # Open, close file, load contents into record array
-    open my $datainput_fh, '>', "graphinput"
-        or die "Unable to open data file: graphinput\n";
+    open my $datainput, '>', "$datafile"
+        or die "Unable to open data file: $datafile\n";
 
+    print $datainput "Years,";
     for(my $i = 0; $i < $#locations; $i++){
-        if($i == $#locations-1){
-            print $datainput_fh $locations[$i]
-        } else {
-            print $datainput_fh $locations[$i].","
+        if(!isInside($locations[$i],\@printedLocations)){
+            print "Not currently inside $locations[$i]\n";
+            if($i == $#locations-1){
+                print $datainput $locations[$i]
+            } else {
+                print $datainput $locations[$i].","
+            }
         }
+        $printedLocations[$i] = $locations[$i];
     }
 
-    print $datainput_fh "\n";
+    print $datainput "\n";
 
     for(my $j = 0; $j < $#locations; $j++){
         if($values[$j] eq '..'){
-            print $datainput_fh " ,"
+            print $datainput ","
 
         } else {
             if($j == $#locations-1){
-                print $datainput_fh $values[$j]
+                print $datainput $values[$j]
             } else {
-                print $datainput_fh $values[$j].","
+                print $datainput $values[$j].","
             }
         }
 
     }
-    close $datainput_fh
-        or die "Unable to close: graphinput\n";
+    close $datainput
+        or die "Unable to close: $datafile\n";
 }
 
 sub sortData{
 #
 # bubble sort the location and value by the value
 #
+
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
+    my @years = @{$_[2]};
     for my $j (0 .. $#locations-1) {
         for my $i (0 .. $#locations-2) {
             if($values[$i] > $values[$i+1]) {
@@ -211,7 +237,7 @@ sub sortData{
     for(my $p=0; $p < $#locations ; $p++ ){
         #print $locations[$p]."-".$values[$p]."\n";
     }                
-    dataFile(\@values, \@locations);
+    makeGraphInput(\@values, \@locations);
 }
 
 sub populationAdjust{
