@@ -122,8 +122,7 @@ sub questions{
     }
 }
 sub isInside{
-    my $value = $_[0];
-    my @array = @{$_[1]};
+    my ($value,@array) = @_;
     return grep( /^$value$/, @array );
 }
 
@@ -133,8 +132,6 @@ sub dataFinder{
     my @value = @{$_[1]};
     my @location = @{$_[2]};
 
-    my $locationList = new ArrayList();
-
     my @relevantValues;
     my @relevantLocations;
 
@@ -142,33 +139,22 @@ sub dataFinder{
     my $recordAmount = $#year;
 
     for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
+        print "Is it there?\n";
         if(isInside( $year[$i], \@relevantYears)){
             if(isInside( $location[$i], \@provinces)){
+                print "Yes it is\n";
                 $relevantValues[$counter] = $value[$i];
                 $relevantLocations[$counter] = $location[$i];
-                $locationList->add(new Location());
-                
-                #print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
+                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
         }
     }
-    graphLocationArrayList("LocationData.csv", $locationList);
+    makeGraphInput(\@relevantValues,\@relevantLocations,"graphFile.csv");
     sortData(\@relevantValues, \@relevantLocations, $counter);
     populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
-sub graphLocationArrayList{
-    my $datafile = $_[0];
-    my $locationList = $_[1];
-    open my $datainput, '>', "$datafile"
-        or die "Unable to open data file: graphinput\n";
-    for(my $i = 0;$i < ($locationList->size()); $i++){
-        print $locationList->get($i)->getName();
-    }
-    close $datainput
-        or die "Unable to close: graphinput\n";
-}
 
 sub makeGraphInput{
 
@@ -176,16 +162,22 @@ sub makeGraphInput{
     my @locations = @{$_[1]};
     my $datafile = $_[2];
 
+    my @existingLocations;
+
      # Open, close file, load contents into record array
     open my $datainput, '>', "$datafile"
         or die "Unable to open data file: graphinput\n";
-
+    print "Hello World $#locations\n";
     for(my $i = 0; $i < $#locations; $i++){
-        if($i == $#locations-1){
-            print $datainput $locations[$i]
-        } else {
-            print $datainput $locations[$i].","
+        print "Hello World\n";
+        if(!isInside($locations[$i],\@existingLocations)){
+            if($i == $#locations-1){
+                print $datainput $locations[$i]
+            } else {
+                print $datainput $locations[$i].","
+            }
         }
+        $existingLocations[$i] = $locations[$i];
     }
     print $datainput "\n";
     for(my $j = 0; $j < $#locations; $j++){
@@ -250,7 +242,7 @@ sub populationAdjust{
             my @infoFields = $csv->fields();
             $province[$k] = $infoFields[0];
             $popNum[$k] = $infoFields[1];
-            # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
+            print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
         } else {
             warn "Line/record could not be parsed: $population[$k]\n";
