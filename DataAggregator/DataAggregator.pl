@@ -38,14 +38,25 @@ print "                                Welcome to Province Guide!!
 print "Please select a range of years to display the data (1998 - 2015)
 - Note that some questions will not be available depending on years given"."\n";
 
+#Asks user to input a minimum and maximum year to obtain values for
+#Also checks to make sure the input is accurate
 while($flag == 0){
     print "Minimum year: ";
     $minYear = <>;
-    chomp $minYear;
+    if($minYear eq "\n"){
+        $flag = 0;
+    } else {
+        chomp $minYear;
+    }
     print "Maximum year: ";
     $maxYear = <>;
-    chomp $maxYear;
+    if($maxYear eq "\n"){
+        $flag = 0;
+    } else {
+        chomp $maxYear;
+    }
 
+    #Checks that each year is only digits
     if($minYear =~ /[^0-9]/){
         print "Incorrect input, try again\n";
         $flag = 0;
@@ -54,6 +65,7 @@ while($flag == 0){
         print "Incorrect input, try again\n";
         $flag = 0;
     } else {
+        #Checks that the years are within the correct range
         if($minYear >= 1998 && $minYear <= 2015 && $maxYear >= 1998 && $maxYear <= 2015 && $maxYear > $minYear){
             $flag = 1;
         }
@@ -61,7 +73,7 @@ while($flag == 0){
 }
 
 my $difference = $maxYear - $minYear;
-
+#Populates array with the relevant years within the range given by the user
 for(my $i = 0; $i <= $difference; $i++){
     $relevantYears[$i] = $minYear;
     $minYear++;
@@ -73,7 +85,7 @@ print "\nPlease answer the following questions with either 'yes' or anything els
 question("questions", $minYear, $maxYear);
 
 #Question asking subroutine
-#Takes in a file path as the parameter and asks all the questions in the file
+#Takes in a file path as the parameter, as well as the minimum and maximum year, and asks all the questions in the file
 sub question{
     my $dataFile = $_[0];
     my $minYear = $_[1];
@@ -110,6 +122,7 @@ sub question{
             if($i == 2 && $minYear < 2008){
                 #No Data Present
             } else {
+                #prints questions in order
                 print $recordNum.". $prompts[$i]\n";          
                 $userInput[$i] = <>;
                 chomp $userInput[$i];
@@ -128,6 +141,8 @@ sub question{
 
 }
 # File Input Subroutine
+# Take in the file name and minimum year as parameters
+# Parses the file and inputs the locations and the number of crimes accordingly into two different arrays
 sub parseFile{
 
     my @records;
@@ -165,13 +180,16 @@ sub parseFile{
     dataFinder(\@year, \@value, \@location, $minYear);
 }
 
+# Takes in the location array as a parameter
+# Checks that the corresponding location is one of the 13 provinces in Canada
 sub isRelevant{
     my $value = $_[0];
     my @array = @{$_[1]};
     return grep( /^$value$/, @array );
 }
 
-
+# Takes in the value and location arrays, as well as the minimum year as parameters
+# Inputs all values needed into new arrays, only for the 13 provinces of Canada, and only for the range of years required
 sub dataFinder{ 
     my @year = @{$_[0]};
     my @value = @{$_[1]};
@@ -196,6 +214,8 @@ sub dataFinder{
     populationAdjust(\@relevantValues, \@relevantLocations, $minYear);
 }
 
+# Takes in the values and location arrays, as well as the minimum year as parameters
+# Opens the census data and adjusts the value numbers based on the population for each province
 sub populationAdjust{
     my @values = @{$_[0]};
     my @location = @{$_[1]};
@@ -228,6 +248,7 @@ sub populationAdjust{
     }
 
     $k = 0;
+    #Decides which census data to use
     foreach my $pop ( @province ){
         if($minYear <= 2006){
             $popNum[$k] = $pop2006[$k];
@@ -240,6 +261,7 @@ sub populationAdjust{
     $k = 0;
     my $j = 0;
     my $x = 0;
+    #Averages the total values for each province, in accordance to its population, and moves them into a new array
     for($k = 0; $k < $#location; $k++){
         foreach my $a ( @province ){
             if($location[$k] eq $province[$j]){
@@ -261,7 +283,9 @@ sub populationAdjust{
 
     sortData(\@averages, \@province);
 }
-
+# Takes in the values and locations arrays as parameters
+# Values is the averages for each province, and locations is the province names
+# These two arrays are written into a file
 sub dataFile{
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
@@ -297,10 +321,9 @@ sub dataFile{
         or die "Unable to close: graphinput\n";
 }
 
+# Takes in the values and locations arrays as parameters
+# The subroutine bubble sorts both arrays based on the values (ascending)
 sub sortData{
-#
-# bubble sort the location and value by the value
-#
     my @values = @{$_[0]};
     my @locations = @{$_[1]};
 
@@ -320,6 +343,8 @@ sub sortData{
     verdict(\@values, \@locations);
 }
 
+# Takes in the values and locations arrays as parameters
+# Accumulates an array of all the top three provinces for each question answered with 'yes'
 sub verdict{
     my @values = @{$_[0]};
     my @location = @{$_[1]};
@@ -337,7 +362,7 @@ sub verdict{
     }
     
 }
-
+# Displays the final provinces chosen for the user based on how many times it occurs in the array 
 sub verdictCheck{
     my $numOntario = 0;
     my $numQuebec = 0;
@@ -521,8 +546,9 @@ sub verdictCheck{
         }
         print "!\n";
     } else {
-        print "In order for this program to run as intended, and for us to help you,
-                 at least one 'yes' answer is necessary next time for us to access the relevant data!\n";
+        print "
+            In order for this program to run as intended, and for us to help you,
+            at least one 'yes' answer is necessary next time for us to access the relevant data!\n";
         print "\nWant to try again? Type yes! ";
         $input = <>;
         chomp $input;
@@ -532,6 +558,8 @@ sub verdictCheck{
     }
 }
 
+# Takes in the number each province occurs and the current greatest number variables as parameters
+# Determines which number is greater and returns it accordingly
 sub sortTopProvinces{
     my $numProvince = $_[0];
     my $greatestNum = $_[1];
