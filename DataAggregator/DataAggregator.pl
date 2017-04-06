@@ -142,12 +142,10 @@ sub dataFinder{
 
     my $locationList = new ArrayList();
 
-    my @relevantYears;
     my @relevantValues;
     my @relevantLocations;
 
     my $counter = 0;
-
     my $recordAmount = $#year+1;
 
     my @yearValueStrings;
@@ -186,7 +184,8 @@ sub dataFinder{
             }
         }
     }
-
+    
+    print "$dataInfo\n";
     my $graphFilePath = "GI-$dataInfo.csv";
     open my $gFile,'>',"$graphFilePath"
     or die "Unable to open: $graphFilePath";
@@ -204,9 +203,9 @@ sub dataFinder{
     }
     print $gFile "$header\n$yearValueString\n";
 
-    print "$header\n$yearValueString\n";
-
     close $gFile or die "Unable to close: $graphFilePath";
+
+    #print "$header\n$yearValueString\n";
 
     populationAdjust(\@relevantValues, \@relevantLocations);
 }
