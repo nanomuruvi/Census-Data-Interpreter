@@ -9,6 +9,8 @@ use lib 'lib';
 use Location;
 use ArrayList;
 
+require 'lib/LilRoutines.pl';
+
 #
 # markham.pl
 # Authors: Mitchell Knauer, Jovana Kusic, Kelsey Kirkland, Nano Muruvi
@@ -38,7 +40,7 @@ print "                                Welcome to Province Guide!!
 
 print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
 
-my $dataInfo;
+my $dataInfo = "";
 
 questions("questions");
 
@@ -95,6 +97,7 @@ sub questions{
     
     my $recordAmnt = $#records+1;
     my $record;
+    my $fp;
     my $recordNum = 0;
     
     my @prompts;
@@ -110,9 +113,9 @@ sub questions{
             my @fields = $csv->fields();
             
             $prompts[$i] = $fields[0];
-
             $results[$i] = $fields[1];
             $files[$i] = $fields[2];
+            $dataInfo = $fields[3];
  
             print $recordNum.". $prompts[$i]\n";          
             $userInput[$i] = <>;
@@ -125,62 +128,12 @@ sub questions{
                 $i = $recordAmnt;
             }
         }else{
-            warn "Failed to parse question $i.";
+            warn "Failed to parse question #".(1+$i)."\n";
         }
     }
 }
 
-sub isInside{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    return grep( /^$value$/, @array );
-}
-sub isSContained{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    my $contained = 0;
-    foreach my $v(@array){
-        if("$v" eq "$value"){
-            $contained = 1;
-        }
-    }
-    return $contained;
-}
 
-sub isNContained{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    my $contained = 0;
-    foreach my $v(@array){
-        if($v == $value){
-            $contained = 1;
-        }
-    }
-    return $contained;
-}
-
-sub strInArray{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    my $index = -1;
-    for(my $i = 0;$i < $#array;$i++){
-        if("$array[$i]" eq "$value"){
-            $index = $i;
-        }
-    }
-    return $index;
-}
-sub numInArray{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    my $index = -1;
-    for(my $i = 0;$i < $#array;$i++){
-        if($array[$i] == $value){
-            $index = $i;
-        }
-    }
-    return $index;
-}
 
 sub dataFinder{
     my @year = @{$_[0]};
@@ -227,25 +180,32 @@ sub dataFinder{
                 my $row = $counter % $t;
                 my $col = strInArray($locations[$i],\@provinces);
                 $yearValueStrings[$row] = $yearValueStrings[$row].",".$values[$i];
-                #print "($counter,$row)   \tLocation: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$year[$i]."\n";
                 $counter++;
             }
         }
     }
     
-
-    my $graphFilePath = "graphInput.csv";
+    print "$dataInfo\n";
+    my $graphFilePath = "GI-$dataInfo.csv";
     open my $gFile,'>',"$graphFilePath"
     or die "Unable to open: $graphFilePath";
 
+    $i=0;
+    my $strAmnt = $#yearValueStrings;
     foreach my $str(@yearValueStrings){
-        $yearValueString = "$yearValueString$str\n";
+        if(($strAmnt - $i) == 0){
+            $yearValueString = "$yearValueString$str";
+        }else{
+            $yearValueString = "$yearValueString$str\n";
+        }
+        
+        $i++;
     }
     print $gFile "$header\n$yearValueString\n";
 
     close $gFile or die "Unable to close: $graphFilePath";
 
-    print "$header\n$yearValueString\n";
+    #print "$header\n$yearValueString\n";
 
     populationAdjust(\@relevantValues, \@relevantLocations);
 }
@@ -282,9 +242,10 @@ sub populationAdjust{
     for($k = 0; $k < $#location; $k++){
         for($j = 0; $j < $#province; $j++){
             if($location[$k] eq $province[$j]){
-                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
+                $values[$k] = emptyToZero($values[$k]) / max((emptyToZero($popNum[$j]) * 10),1);
                 $values[$k] = sprintf "%.2f", $values[$k];
             }
         }
     }
 }
+
