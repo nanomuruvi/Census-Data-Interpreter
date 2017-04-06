@@ -69,3 +69,5 @@ a.out
 
 .RData
 .Rhistory
+
+*.pdf
