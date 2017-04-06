@@ -9,6 +9,8 @@ use lib 'lib';
 use Location;
 use ArrayList;
 
+require 'lib/LilRoutines.pl';
+
 #
 # markham.pl
 # Authors: Mitchell Knauer, Jovana Kusic, Kelsey Kirkland, Nano Muruvi
@@ -27,7 +29,7 @@ my $BAR   = q{|};
 my $bar   = Text::CSV->new({ sep_char => $BAR});
 my $csv   = Text::CSV->new({ sep_char => $COMMA});
 
-my @relevantYears = (2015,2014,2013,2012,2011,2010);
+my @relevantYears = (2015,2014,2013,2012,2011,2010,2009,2008,2007,2006,2005);
 my @provinces = ("Ontario","Quebec","Nova Scotia","New Brunswick","Manitoba","British Columbia","Prince Edward Island",
     "Saskatchewan","Alberta","Newfoundland and Labrador","Yukon","Northwest Territories","Nunavut");
 
@@ -37,6 +39,8 @@ print "                                Welcome to Province Guide!!
  We will ask you a series of yes or no questions and display your results once they have been calculated.";
 
 print "\n\nPlease answer the following questions with either 'yes' or 'no': ";
+
+my $dataInfo = "";
 
 questions("questions");
 
@@ -59,11 +63,17 @@ sub parseFile{
         or die "Unable to close: $filename\n";
 
     $recordCount = 0;
+
+    my $v;
     foreach my $counter (@records) {
         if ($csv->parse($counter)) {
             my @fields = $csv->fields();
             $year[$recordCount]     = $fields[0];
-            $value[$recordCount]    = $fields[1];
+            $v = $fields[1];
+            if($v eq ".."){
+                $v = "";
+            }
+            $value[$recordCount]    = $v;
             $location[$recordCount] = $fields[2];
             $recordCount++;
         } else {
@@ -87,6 +97,7 @@ sub questions{
     
     my $recordAmnt = $#records+1;
     my $record;
+    my $fp;
     my $recordNum = 0;
     
     my @prompts;
@@ -102,11 +113,11 @@ sub questions{
             my @fields = $csv->fields();
             
             $prompts[$i] = $fields[0];
-
             $results[$i] = $fields[1];
             $files[$i] = $fields[2];
+            $dataInfo = $fields[3];
  
-            print $recordNum.". $prompts[$i]\n";          
+            print "\n$recordNum. $prompts[$i]\n";          
             $userInput[$i] = <>;
             chomp $userInput[$i];
 
@@ -114,130 +125,90 @@ sub questions{
                 print $results[$i]."\n";
                 parseFile($files[$i]);
             }elsif(lc($userInput[$i]) eq "x"){
-                $i=$recordAmnt;
+                $i = $recordAmnt;
             }
         }else{
-            warn "Failed to parse question $i.";
+            warn "Failed to parse question #".(1+$i)."\n";
         }
     }
 }
-sub isInside{
-    my $value = $_[0];
-    my @array = @{$_[1]};
-    return (grep{/^$value$/} @array );
-}
-sub isValueIn{
-    my ($v,@array)=@_;
-    my $isThere;
-    my $i = 0;
-    foreach my $value(@array){
-        $isThere = $isThere || $value == $v;
-        $i++;
-    }
-    return $isThere;
-}
+
 
 
 sub dataFinder{
-    my @years = @{$_[0]};
+    my @year = @{$_[0]};
     my @values = @{$_[1]};
     my @locations = @{$_[2]};
+
+    my $locationList = new ArrayList();
 
     my @relevantYears;
     my @relevantValues;
     my @relevantLocations;
 
     my $counter = 0;
-    my $recordAmount = $#years;
 
-    #Removed the /2 because not sure why it was even there
-    for(my $i = 0; $i < ($recordAmount/2)+1; $i++){
+    my $recordAmount = $#year+1;
 
-        if(isInside( $years[$i], \@relevantYears)){
-            print ("Hello World 2\n");
+    my @yearValueStrings;
+    my $yearValueString = "";
+    my $header = "Year";
+    
+    my @addedLocations;
+    my @addedYears;
+
+    my $i =0;
+    my $s = 0;
+    my $t = 0;
+    my $ls = 0;
+
+    for($i = 0; $i < ($recordAmount/2); $i++){
+        if(isInside( $year[$i], \@relevantYears)){
             if(isInside( $locations[$i], \@provinces)){
-
-                $relevantYears[$counter] = $years[$i];
+                
                 $relevantValues[$counter] = $values[$i];
                 $relevantLocations[$counter] = $locations[$i];
-                
-                print "Location: ".$relevantLocations[$counter]." Value: ".$relevantValues[$counter]." Year: ".$years[$i]."\n";
+                if(!isSContained($relevantLocations[$counter],\@addedLocations)){
+                    $addedLocations[$s] = $relevantLocations[$counter];
+                    $header = $header.",\"".$addedLocations[$s]."\"";
+                    $s++;
+                }
+
+                if(isNContained($year[$i],\@addedYears)==0){
+                    $yearValueStrings[$t] = $year[$i];
+                    $addedYears[$t] = $year[$i];
+                    $t++;
+                }
+                my $row = $counter % $t;
+                my $col = strInArray($locations[$i],\@provinces);
+                $yearValueStrings[$row] = $yearValueStrings[$row].",".$values[$i];
                 $counter++;
             }
         }
     }
-    makeGraphInput(\@relevantValues, \@relevantLocations, \@relevantYears);
-    #sortData(\@relevantValues, \@relevantLocations, \@relevantYears);
-    #populationAdjust(\@relevantValues, \@relevantLocations);
-}
 
-sub makeGraphInput{
-    my @values = @{$_[0]};
-    my @locations = @{$_[1]};
-    my @years = @{$_[2]};
-    my $datafile = "graphinput.csv";
-    my @printedLocations = ();
+    my $graphFilePath = "GI-$dataInfo.csv";
+    open my $gFile,'>',"$graphFilePath"
+    or die "Unable to open: $graphFilePath";
 
-     # Open, close file, load contents into record array
-    open my $datainput, '>', "$datafile"
-        or die "Unable to open data file: $datafile\n";
-
-    print $datainput "Years,";
-    for(my $i = 0; $i < $#locations; $i++){
-        if(!isInside($locations[$i],\@printedLocations)){
-            print "Not currently inside $locations[$i]\n";
-            if($i == $#locations-1){
-                print $datainput $locations[$i]
-            } else {
-                print $datainput $locations[$i].","
-            }
+    $i=0;
+    my $strAmnt = $#yearValueStrings;
+    foreach my $str(@yearValueStrings){
+        if(($strAmnt - $i) == 0){
+            $yearValueString = "$yearValueString$str";
+        }else{
+            $yearValueString = "$yearValueString$str\n";
         }
-        $printedLocations[$i] = $locations[$i];
+        
+        $i++;
     }
+    print $gFile "$header\n$yearValueString\n";
 
-    print $datainput "\n";
+    print "$header\n$yearValueString\n";
 
-    for(my $j = 0; $j < $#locations; $j++){
-        if($values[$j] eq '..'){
-            print $datainput ","
+    close $gFile or die "Unable to close: $graphFilePath";
 
-        } else {
-            if($j == $#locations-1){
-                print $datainput $values[$j]
-            } else {
-                print $datainput $values[$j].","
-            }
-        }
-
-    }
-    close $datainput
-        or die "Unable to close: $datafile\n";
-}
-
-sub sortData{
-#
-# bubble sort the location and value by the value
-#
-
-    my @values = @{$_[0]};
-    my @locations = @{$_[1]};
-    my @years = @{$_[2]};
-    for my $j (0 .. $#locations-1) {
-        for my $i (0 .. $#locations-2) {
-            if($values[$i] > $values[$i+1]) {
-                my $tempLoc = $locations[$i];
-                my $tempVal = $values[$i];
-                $locations[$i] = $locations[$i+1];
-                $values[$i] = $values[$i+1];
-                $locations[$i+1] = $tempLoc;
-                $values[$i+1] = $tempVal;
-            }
-        }
-    }
-    for(my $p=0; $p < $#locations ; $p++ ){
-        #print $locations[$p]."-".$values[$p]."\n";
-    }                
-    makeGraphInput(\@values, \@locations);
+    populationAdjust(\@relevantValues, \@relevantLocations);
 }
 
 sub populationAdjust{
@@ -259,7 +230,6 @@ sub populationAdjust{
             my @infoFields = $csv->fields();
             $province[$k] = $infoFields[0];
             $popNum[$k] = $infoFields[1];
-            # print "province: ".$province[$k]." population: ".$popNum[$k]."\n";
             $k++;
         } else {
             warn "Line/record could not be parsed: $population[$k]\n";
@@ -271,12 +241,10 @@ sub populationAdjust{
     for($k = 0; $k < $#location; $k++){
         for($j = 0; $j < $#province; $j++){
             if($location[$k] eq $province[$j]){
-                $values[$k] = ($values[$k] / ($popNum[$j] * 1000)) *100;
+                $values[$k] = emptyToZero($values[$k]) / max((emptyToZero($popNum[$j]) * 10),1);
                 $values[$k] = sprintf "%.2f", $values[$k];
-                print $location[$k]." (".$values[$k]."%)\n";
-
             }
         }
     }
-    sortData(\@values, \@location);
 }
+
