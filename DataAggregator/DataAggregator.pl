@@ -138,11 +138,10 @@ sub yearRangeCalculation{
         if($minYear =~ /[^0-9]/){
             print "Incorrect input, try again\n";
             $flag = 0;
-        } 
-        elsif($maxYear =~ /[^0-9]/){
+        }elsif($maxYear =~ /[^0-9]/){
             print "Incorrect input, try again\n";
             $flag = 0;
-        } else {
+        }else {
             #Checks that the years are within the correct range
             if($minYear >= 1998 && $minYear <= 2015 && $maxYear >= 1998 && $maxYear <= 2015 && $maxYear > $minYear){
                 $flag = 1;
@@ -157,6 +156,7 @@ sub yearRangeCalculation{
         $minYear++;
     }
     $minYear = $minYear - $difference - 1;
+    print "\nWe'll get the data for the years from $minYear to $maxYear.\n";
 }
 
 # File Input Subroutine
