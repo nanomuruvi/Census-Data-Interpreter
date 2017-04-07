@@ -45,7 +45,7 @@ my $dataInfo = "";
 
 print "                                   Welcome to Province Guide\n   With this program we can help you decide which province in Canada would suit you best to live in!\nWe will ask you a series of yes or no questions and display your results once they have been calculated.\n\n";
 
-print "First we need a range of years to work with.\n";
+print "First we need a range of years to work with. Please enter 2 different years.\n";
 yearRangeCalculation();
 
 print"\n       Please answer the following questions with 'x' to exit and 'yes' or 'no' to continue.\n";
@@ -254,7 +254,7 @@ sub dataFinder{
         }
     }
     
-    my $graphFilePath = "GI-$dataInfo.csv";
+    my $graphFilePath = "GI-".$dataInfo."csv";
     open my $gFile,'>',"$graphFilePath"
     or die "Unable to open: $graphFilePath";
 

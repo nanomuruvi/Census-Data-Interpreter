@@ -13,6 +13,7 @@ sub min{
 	return $min;
 }
 
+#returns the maximum value 
 sub max{
 	my $v1 = $_[0];
 	my $v2 = $_[1];
@@ -23,12 +24,14 @@ sub max{
 	return $max;
 }
 
+#checks if a string is inside an array of strings
 sub isInside{
     my $value = $_[0];
     my @array = @{$_[1]};
     return grep( /^$value$/, @array );
 }
 
+#checks if a string is in an array of strings
 sub isSContained{
     my $value = $_[0];
     my @array = @{$_[1]};
@@ -41,6 +44,7 @@ sub isSContained{
     return $contained;
 }
 
+#checks if a number is in an array
 sub isNContained{
     my $value = $_[0];
     my @array = @{$_[1]};
@@ -53,6 +57,7 @@ sub isNContained{
     return $contained;
 }
 
+#checks if a string is in an array
 sub strInArray{
     my $value = $_[0];
     my @array = @{$_[1]};
@@ -65,6 +70,7 @@ sub strInArray{
     return $index;
 }
 
+#checks is a number is in an array
 sub numInArray{
     my $value = $_[0];
     my @array = @{$_[1]};
@@ -77,6 +83,7 @@ sub numInArray{
     return $index;
 }
 
+#converts empty spaces to zeroes for values
 sub emptyToZero{
 	my $v = $_[0];
 	if($v eq ""){
