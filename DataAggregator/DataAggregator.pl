@@ -254,7 +254,6 @@ sub dataFinder{
         }
     }
     
-    print "$dataInfo\n";
     my $graphFilePath = "GI-$dataInfo.csv";
     open my $gFile,'>',"$graphFilePath"
     or die "Unable to open: $graphFilePath";
