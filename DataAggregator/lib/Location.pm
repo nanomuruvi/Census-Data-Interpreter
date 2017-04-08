@@ -38,6 +38,11 @@ sub setValue{
 	$self->{values}->{$key} = $value if defined($value);
 	return $hash{'$_[0]'};
 }
+sub addValue{
+	my ($self, $key, $value) = @_;
+	$self->{values}->{$key} = $value if defined($value);
+	return $hash{'$_[0]'};
+}
 
 sub removeValue{
 	my ($self, $key) = @_;

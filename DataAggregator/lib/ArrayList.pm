@@ -33,6 +33,11 @@ sub set{
 	$self->{array}[$index] = $value;
 }
 
+sub indexExists{
+	my ($self, $index) = @_;
+	my $exists = ($#self>$index);
+}
+
 sub removeIndex{
 	my ($self, $index) = @_;
 	splice $self->{array}, $index, 1;
