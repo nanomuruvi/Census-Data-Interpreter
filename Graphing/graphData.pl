@@ -27,15 +27,16 @@ my $inputData;
 my $plotType;
 my $xLab;
 my $yLab;
+my $location;
 
-if ($#ARGV != 2 ) {
+if ( $#ARGV != 2 ) {
    print "Usage: plotNames.pl <input file name> <pdf file name> <plot type>\n" or
       die "Print failure\n";
    exit;
 } else {
 	$inputData	= $ARGV[0];
-	$outputPDF 	= $ARGV[1];
 	$plotType	= $ARGV[2];
+	$outputPDF 	= $plotType."_".$ARGV[1];
 }
 
 $R -> run(qq`pdf("$outputPDF" , paper="letter")`);
@@ -43,10 +44,9 @@ $R -> run(q`library(ggplot2)`);
 
 if($plotType eq"boxplot"){
 	boxplot($inputData);
-}elsif("bargraph"){
-	barGraph($inputData);
 }elsif("lineGraph"){
 
+	lineGraph($inputData,);
 }
 
 $R -> run(q`dev.off()`);
@@ -55,21 +55,15 @@ $R -> stop();
 
 sub boxplot{
 	my $file = $_[0];
-	$R -> run(qq`data <- read.csv("$file")`);
+	$R -> run(qq`data <- read.csv("$file",header=TRUE)`);
 	$R -> run(q`attach(data)`);
-	$R -> run(q`boxplot(data)`);
+	$R -> run(q`boxplot(data,xlab="Locations",ylab="Quantity")`);
 }
 
-sub barGraph{
-	my $file = $_[0];
-	$R -> run(qq`data <- read.csv("$file")`);
-	$R -> run(q`attach(data)`);
-	$R -> run(q`barplot(data)`);
-}
 
 sub lineGraph{
 	my $file = $_[0];
-	$R -> run(qq`data <- read.csv("$file")`);
+	$R -> run(qq`data <- read.csv("$file",header=TRUE)`);
 	$R -> run(q`attach(data)`);
-	$R -> run(q`ggplot(data$, aes(x=Year, y=Score, colour=Name, group=Name)) + geom_line() + geom_point(size=2) + ggtitle("Popularity of Names") + ylab("Ranking") + scale_y_continuous(breaks=c(0,1,2,3,4,5,6,7,8)`);
+	$R -> run(q`plot(data$Ontario~data$Year,xlab="Year",ylab="Quantity",main=""$location" Data for Each Year",type="l")`);
 }
