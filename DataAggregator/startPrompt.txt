@@ -1,5 +1,0 @@
-                                     Welcome to Province Guide
-With this program we can help you decide which province in Canada would suit you best to live in!
-We will ask you a series of yes or no questions and display your results once they have been calculated.
-
-                 Please answer the following questions with either 'yes' or 'no':
