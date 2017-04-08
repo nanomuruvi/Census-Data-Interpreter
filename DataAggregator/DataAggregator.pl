@@ -6,8 +6,6 @@ use version; our $VERSION = qv('5.16.0');
 use Text::CSV  1.32;
 
 use lib 'lib';
-use Location;
-use ArrayList;
 
 require 'lib/LilRoutines.pl';
 
@@ -207,8 +205,6 @@ sub dataFinder{
     my @values = @{$_[1]};
     my @locations = @{$_[2]};
 
-    my $locationList = new ArrayList();
-
     my @relevantValues;
     my @relevantLocations;
 
@@ -298,7 +294,6 @@ sub sortData{
     dataFile(\@values, \@locations);
     verdict(\@values, \@locations);
 }
-
 
 # Takes in the values and location arrays, as well as the minimum year as parameters
 # Opens the census data and adjusts the value numbers based on the population for each province
@@ -593,5 +588,3 @@ sub sortTopProvinces{
         return $greatestNum;
     }
 }
-
-
